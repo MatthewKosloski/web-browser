@@ -43,7 +43,12 @@ class Browser:
         body = url.request()
         text = lex(body)
         self.display_list = layout(text, self.width, self.hstep, self.vstep)
-        self.scrollbar = Scrollbar(self.canvas, self.width, self.height, self.vstep, self.display_list[-1][1])
+        self.scrollbar = Scrollbar(
+            canvas=self.canvas,
+            window_width=self.width,
+            window_height=self.height,
+            vstep=self.vstep,
+            max_y=self.display_list[-1][1])
         self.draw()
 
     def to_screen_coordinate(self, page_coordinate):
