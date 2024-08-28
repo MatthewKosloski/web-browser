@@ -6,6 +6,5 @@ A toy web browser built by following along with the [browser.engineering](https:
 
 To run/debug the browser, within VS Code:
 
-1. Open `browser.py`.
-2. Open "Run and Debug" from the sidebar.
-3. Select "Run/Debug Browser".
+1. Open "Run and Debug" from the sidebar.
+2. Select "Run/Debug Browser".
