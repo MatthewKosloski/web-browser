@@ -11,7 +11,7 @@
             "args": [
                 "file:///${workspaceFolder}/demos/example.html",
             ],
-            "program": "${workspaceFolder}/src/browser.py",
+            "program": "${workspaceFolder}/src/Browser.py",
             "console": "integratedTerminal",
         }
     ]
