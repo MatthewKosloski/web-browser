@@ -4,6 +4,15 @@ import ssl
 from UrlParser import UrlParser
 
 class Url:
+    '''
+        Parses a URL and then attempts to request the content from it. If the
+        host has an http scheme, then a HTTP 1.0 request is made to the host.
+        If the host has a file scheme, then a read to disk is initiated.
+    
+        Supported schemes include:
+          - http(s)
+          - file
+    '''
 
     def __init__(self, url):
         url_parts = UrlParser.parse(url)
@@ -11,15 +20,6 @@ class Url:
         self.path = url_parts["path"]
         self.port = url_parts["port"]
         self.scheme = url_parts["scheme"]
-
-    def read_file(self, file_path):
-        try:
-            with open(file_path, 'r') as file:
-                content = file.read()
-                return content
-        except FileNotFoundError:
-            print(f"Error: File not found at {file_path}")
-            return None
 
     def request(self):
 
@@ -80,3 +80,13 @@ class Url:
         s.close()
 
         return content
+    
+
+    def read_file(self, file_path):
+        try:
+            with open(file_path, 'r') as file:
+                content = file.read()
+                return content
+        except FileNotFoundError:
+            print(f"Error: File not found at {file_path}")
+            return None
