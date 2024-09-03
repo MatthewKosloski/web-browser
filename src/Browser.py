@@ -1,5 +1,4 @@
 import tkinter
-import tkinter.font
 
 from HTMLParser import HTMLParser
 from Layout import Layout
