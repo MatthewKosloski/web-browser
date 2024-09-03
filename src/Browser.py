@@ -61,7 +61,7 @@ class Browser:
         return (screen_x, screen_y)
 
     def draw(self, e = None):
-        self.scrollbar.draw_scrollbar(e)
+        self.scrollbar.draw(e)
 
         for page_x, page_y, word, font in self.display_list:
 

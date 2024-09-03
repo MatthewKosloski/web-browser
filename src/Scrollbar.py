@@ -8,10 +8,10 @@ class Scrollbar:
         self.vstep = vstep
         self.max_y = max_y
         self.scroll = 0
-        self.scrollbar_color = "blue"
-        self.scrollbar_width = 15
-        self.scrollbar_y0 = None
-        self.scrollbar_y1 = None
+        self.color = "blue"
+        self.width = 15
+        self.y0 = None
+        self.y1 = None
         self.scroll_step = self.calculate_scroll_step()
 
     def calculate_scroll_distance(self):
@@ -59,7 +59,7 @@ class Scrollbar:
 
         return scroll_step
     
-    def calculate_scrollbar_height(self):
+    def calculate_height(self):
         """
         Calculates the scrollbar height. If the maximum scrollable distance
         is zero, then the scrollbar height is zero.
@@ -94,58 +94,58 @@ class Scrollbar:
 
         return num_steps
  
-    def draw_scrollbar(self, e = None):
-        scrollbar_height = self.calculate_scrollbar_height()
+    def draw(self, e = None):
+        height = self.calculate_height()
 
         # We don't need to draw a scrollbar.
-        if scrollbar_height <= 0:
+        if height <= 0:
             return
 
         y0_lower_limit = 0
-        y0_upper_limit = self.window_height - scrollbar_height
-        y1_lower_limit = scrollbar_height
+        y0_upper_limit = self.window_height - height
+        y1_lower_limit = height
         y1_upper_limit = self.window_height
 
         scroll_steps = self.get_scroll_steps()
         y0_step = (y0_upper_limit - y0_lower_limit) / scroll_steps
         y1_step = (y1_upper_limit - y1_lower_limit) / scroll_steps
 
-        if self.scrollbar_y0 is None:
-            self.scrollbar_y0 = 0
+        if self.y0 is None:
+            self.y0 = 0
         if e is not None and e.keysym == "Down":
-            self.scrollbar_y0 += y0_step
+            self.y0 += y0_step
         elif e is not None and e.keysym == "Up":
-            self.scrollbar_y0 -= y0_step
+            self.y0 -= y0_step
 
         
-        if self.scrollbar_y1 is None:
-            self.scrollbar_y1 = scrollbar_height
+        if self.y1 is None:
+            self.y1 = height
         elif e is not None and e.keysym == "Down":
-            self.scrollbar_y1 += y1_step
+            self.y1 += y1_step
         elif e is not None and e.keysym == "Up":
-            self.scrollbar_y1 -= y1_step
+            self.y1 -= y1_step
 
         # Prevent y0 from exiting boundary.
-        if self.scrollbar_y0 >= y0_upper_limit:
-            self.scrollbar_y0 = y0_upper_limit
-        elif self.scrollbar_y0 <= y0_lower_limit:
-            self.scrollbar_y0 = y0_lower_limit
+        if self.y0 >= y0_upper_limit:
+            self.y0 = y0_upper_limit
+        elif self.y0 <= y0_lower_limit:
+            self.y0 = y0_lower_limit
 
         # Prevent y1 from exiting boundary.
-        if self.scrollbar_y1 >= y1_upper_limit:
-            self.scrollbar_y1 = y1_upper_limit
-        elif self.scrollbar_y1 <= y1_lower_limit:
-            self.scrollbar_y1 = y1_lower_limit
+        if self.y1 >= y1_upper_limit:
+            self.y1 = y1_upper_limit
+        elif self.y1 <= y1_lower_limit:
+            self.y1 = y1_lower_limit
 
-        x0, y0 = (self.window_width - self.scrollbar_width, self.scrollbar_y0)
-        x1, y1 = (self.window_width, self.scrollbar_y1)
+        x0, y0 = (self.window_width - self.width, self.y0)
+        x1, y1 = (self.window_width, self.y1)
 
-        self.canvas.create_rectangle(x0, y0, x1, y1, fill = self.scrollbar_color, width = 0)
+        self.canvas.create_rectangle(x0, y0, x1, y1, fill = self.color, width = 0)
 
     def scroll_down(self, e):
         # Check if we have a scrollbar. If not, then don't do anything.
-        scrollbar_height = self.calculate_scrollbar_height()
-        if scrollbar_height <= 0:
+        height = self.calculate_height()
+        if height <= 0:
             return
 
         # Do not scroll down past the page.
@@ -157,8 +157,8 @@ class Scrollbar:
 
     def scroll_up(self, e):
         # Check if we have a scrollbar. If not, then don't do anything.
-        scrollbar_height = self.calculate_scrollbar_height()
-        if scrollbar_height <= 0:
+        height = self.calculate_height()
+        if height <= 0:
             return
 
         # Do not scroll up past the page.
