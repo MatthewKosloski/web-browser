@@ -1,10 +1,9 @@
 import tkinter
 import tkinter.font
 
+from HTMLParser import HTMLParser
 from Layout import Layout
 from Scrollbar import Scrollbar
-from Tag import Tag
-from Text import Text
 from Url import Url
 
 class Browser:
@@ -45,8 +44,8 @@ class Browser:
 
     def load(self, url):
         body = url.request()
-        tokens = lex(body)
-        self.display_list = Layout(tokens, self.hstep, self.vstep, self.width).display_list
+        nodes = HTMLParser(body).parse()
+        self.display_list = Layout(nodes, self.hstep, self.vstep, self.width).display_list
         self.scrollbar = Scrollbar(
             canvas=self.canvas,
             window_width=self.width,
@@ -72,25 +71,6 @@ class Browser:
 
             screen_x, screen_y = self.to_screen_coordinate((page_x, page_y))
             self.canvas.create_text(screen_x, screen_y, text=word, font=font, anchor='nw')
-
-def lex(body):
-    out = []
-    buffer = ""
-    in_tag = False
-    for c in body:
-        if c == "<":
-            in_tag = True
-            if buffer: out.append(Text(buffer))
-            buffer = ""
-        elif c == ">":
-            in_tag = False
-            out.append(Tag(buffer))
-            buffer = ""
-        else:
-            buffer += c
-    if not in_tag and buffer:
-        out.append(Text(buffer))
-    return out
 
 if __name__ == "__main__":
     import sys

@@ -1,7 +1,7 @@
 import tkinter
 import tkinter.font
 
-from Tag import Tag
+from Element import Element
 from Text import Text
 
 class Layout:
@@ -9,7 +9,7 @@ class Layout:
     LEADING = 1.25
     FONTS = {}
 
-    def __init__(self, tokens, hstep, vstep, window_width):
+    def __init__(self, nodes, hstep, vstep, window_width):
         self.display_list = []
         self.line = []
         self.hstep = hstep
@@ -21,35 +21,44 @@ class Layout:
         self.style = "roman"
         self.size = 12
 
-        for tok in tokens:
-            self.token(tok)
+        self.recurse(nodes)
 
         self.flush()
-    
-    def token(self, tok):
-        if isinstance(tok, Text):
-            for word in tok.text.split():
+
+    def recurse(self, tree):
+        if isinstance(tree, Text):
+            for word in tree.text.split():
                 self.word(word)
-        elif tok.tag == "i":
+        else:
+            self.open_tag(tree.tag)
+            for child in tree.children:
+                self.recurse(child)
+            self.close_tag(tree.tag)
+
+    def open_tag(self, tag):
+        if tag == "i":
             self.style = "italic"
-        elif tok.tag == "/i":
-            self.style = "roman"
-        elif tok.tag == "b":
+        elif tag == "b":
             self.weight = "bold"
-        elif tok.tag == "/b":
-            self.weight = "normal"
-        elif tok.tag == "small":
+        elif tag == "small":
             self.size -= 2
-        elif tok.tag == "/small":
-            self.size += 2
-        elif tok.tag == "big":
+        elif tag == "big":
             self.size += 4
-        elif tok.tag == "/big":
-            self.size -= 4
-        elif tok.tag == "br":
+        elif tag == "br":
             # End the current line and start a new one.
             self.flush()
-        elif tok.tag == "/p":
+
+
+    def close_tag(self, tag):
+        if tag == "/i":
+            self.style = "roman"
+        elif tag == "/b":
+            self.weight = "normal"
+        elif tag == "/small":
+            self.size += 2
+        elif tag == "/big":
+            self.size -= 4
+        elif tag == "/p":
             # End the current line and start a new one.
             self.flush()
             # Add a gap between paragraphs.
