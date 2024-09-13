@@ -93,6 +93,8 @@ class BlockLayout:
     def layout_mode(self):
         if isinstance(self.node, Text):
             return "inline"
+        elif self.node.tag in self.BLOCK_ELEMENTS:
+            return "block"
         elif any([isinstance(child, Element) and \
                 child.tag in self.BLOCK_ELEMENTS
                 for child in self.node.children]):
@@ -134,7 +136,7 @@ class BlockLayout:
             self.size += 2
         elif tag == "big":
             self.size -= 4
-        elif tag == "p":
+        elif tag in self.BLOCK_ELEMENTS:
             # End the current line and start a new one.
             self.flush()
             # Add a gap between paragraphs.
