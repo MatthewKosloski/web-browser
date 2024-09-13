@@ -1,7 +1,8 @@
 import tkinter
 
+from BrowserConfig import BrowserConfig
+from DocumentLayout import DocumentLayout
 from HTMLParser import HTMLParser
-from Layout import Layout
 from Scrollbar import Scrollbar
 from Url import Url
 
@@ -43,14 +44,18 @@ class Browser:
 
     def load(self, url):
         body = url.request()
+        config = BrowserConfig(self.width, self.height, self.hstep, self.vstep)
         nodes = HTMLParser(body).parse()
-        self.display_list = Layout(nodes, self.hstep, self.vstep, self.width).display_list
+        self.document = DocumentLayout(config, nodes)
+        self.document.layout()
+        self.display_list = []
+        self.paint_tree(self.document, self.display_list)
         self.scrollbar = Scrollbar(
             canvas=self.canvas,
             window_width=self.width,
             window_height=self.height,
             vstep=self.vstep,
-            max_y=self.display_list[-1][1])
+            max_y=self.document.height)
         self.draw()
 
     def to_screen_coordinate(self, page_coordinate):
@@ -70,6 +75,12 @@ class Browser:
 
             screen_x, screen_y = self.to_screen_coordinate((page_x, page_y))
             self.canvas.create_text(screen_x, screen_y, text=word, font=font, anchor='nw')
+
+    def paint_tree(self, layout_objects, display_list):
+        display_list.extend(layout_objects.paint())
+
+        for child in layout_objects.children:
+            self.paint_tree(child, display_list)
 
 if __name__ == "__main__":
     import sys
