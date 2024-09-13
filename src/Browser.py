@@ -29,17 +29,11 @@ class Browser:
     def handle_event_down(self, e):
         if self.scrollbar is not None:
             self.scrollbar.scroll_down(e)
-
-        # Erase and redraw the canvas.
-        self.canvas.delete("all")
         self.draw(e)
 
     def handle_event_up(self, e):
         if self.scrollbar is not None:
             self.scrollbar.scroll_up(e)
-
-        # Erase and redraw the canvas.
-        self.canvas.delete("all")
         self.draw(e)
 
     def load(self, url):
@@ -65,16 +59,13 @@ class Browser:
         return (screen_x, screen_y)
 
     def draw(self, e = None):
+        self.canvas.delete("all")
         self.scrollbar.draw(e)
 
-        for page_x, page_y, word, font in self.display_list:
-
-            # Skip drawing characters that are offscreen.
-            if page_y > self.scrollbar.scroll + self.height: continue
-            if page_y + self.vstep < self.scrollbar.scroll: continue
-
-            screen_x, screen_y = self.to_screen_coordinate((page_x, page_y))
-            self.canvas.create_text(screen_x, screen_y, text=word, font=font, anchor='nw')
+        for command in self.display_list:
+            if command.top > self.scrollbar.scroll + self.height: continue
+            if command.bottom < self.scrollbar.scroll: continue
+            command.execute(self.scrollbar.scroll, self.canvas)
 
     def paint_tree(self, layout_objects, display_list):
         display_list.extend(layout_objects.paint())

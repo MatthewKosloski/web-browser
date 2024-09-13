@@ -4,6 +4,40 @@ import tkinter.font
 from Element import Element
 from Text import Text
 
+class DrawText:
+    def __init__(self, x1, y1, text, font):
+        self.top = y1
+        self.left = x1
+        self.bottom = y1 + font.metrics("linespace")
+        self.text = text
+        self.font = font
+
+    def execute(self, scroll, canvas):
+        canvas.create_text(
+            self.left,
+            self.top - scroll,
+            text=self.text,
+            font=self.font,
+            anchor='nw')
+
+class DrawRect:
+    def __init__(self, x1, y1, x2, y2, color):
+        self.top = y1
+        self.left = x1
+        self.bottom = y2
+        self.right = x2
+        self.color = color
+
+    def execute(self, scroll, canvas):
+        canvas.create_rectangle(
+            self.left,
+            self.top - scroll,
+            self.right,
+            self.bottom - scroll,
+            # Do not draw border.
+            width=0,
+            fill=self.color)
+
 class BlockLayout:
 
     LEADING = 1.25
@@ -30,7 +64,17 @@ class BlockLayout:
         self.display_list = []
 
     def paint(self):
-        return self.display_list
+        commands = []
+
+        if isinstance(self.node, Element) and self.node.tag == "pre":
+            x2, y2 = self.x + self.width, self.y + self.height
+            rect = DrawRect(self.x, self.y, x2, y2, "gray")
+            commands.append(rect)
+
+        if self.layout_mode() == "inline":
+            for x, y, word, font in self.display_list:
+                commands.append(DrawText(x, y, word, font))
+        return commands
 
     def layout(self):
         # To compute a block's x position, the x position of its parent block
