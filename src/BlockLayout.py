@@ -58,23 +58,25 @@ class BlockLayout:
         else:
             self.cursor_x = 0
             self.cursor_y = 0
-            # We need to be tall enough to contain the text.
-            self.height = self.cursor_y
             self.weight = "normal"
             self.style = "roman"
             self.size = 12
 
             self.line = []
             self.recurse(self.node)
+
+            # We need to be tall enough to contain the text.
+            self.height = self.cursor_y
+
             self.flush()
 
         for child in self.children:
             child.layout()
 
-
-        # Height is the sum of all the children's heights. Therefore,
-        # we need to compute the height after laying out the children.
-        self.height = sum([child.height for child in self.children])
+        if mode == "block":
+            # Height is the sum of all the children's heights. Therefore,
+            # we need to compute the height after laying out the children.
+            self.height = sum([child.height for child in self.children])
 
     def layout_mode(self):
         if isinstance(self.node, Text):
