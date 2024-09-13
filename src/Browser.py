@@ -1,7 +1,7 @@
 import tkinter
 
 from BrowserConfig import BrowserConfig
-from DocumentLayout import DocumentLayout
+from DocumentLayoutNode import DocumentLayoutNode
 from HTMLParser import HTMLParser
 from Scrollbar import Scrollbar
 from Url import Url
@@ -36,12 +36,20 @@ class Browser:
             self.scrollbar.scroll_up(e)
         self.draw(e)
 
+    def print_tree(self, node, indent=0):
+        print(" " * indent, node)
+        for child in node.children:
+            self.print_tree(child, indent + 4)
+
+
     def load(self, url):
         body = url.request()
         config = BrowserConfig(self.width, self.height, self.hstep, self.vstep)
         nodes = HTMLParser(body).parse()
-        self.document = DocumentLayout(config, nodes)
+        self.print_tree(nodes)
+        self.document = DocumentLayoutNode(config, nodes)
         self.document.layout()
+        self.print_tree(self.document)
         self.display_list = []
         self.paint_tree(self.document, self.display_list)
         self.scrollbar = Scrollbar(

@@ -6,7 +6,7 @@ from DrawText import DrawText
 from Element import Element
 from Text import Text
 
-class BlockLayout:
+class BlockLayoutNode:
 
     LEADING = 1.25
     FONTS = {}
@@ -64,7 +64,7 @@ class BlockLayout:
         if mode == "block":
             previous = None
             for child in self.node.children:
-                next = BlockLayout(self.config, child, self, previous)
+                next = BlockLayoutNode(self.config, child, self, previous)
                 self.children.append(next)
                 previous = next
         else:
