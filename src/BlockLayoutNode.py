@@ -191,3 +191,9 @@ class BlockLayoutNode:
 
         return self.FONTS[key][0]
     
+    def __repr__(self):
+        if isinstance(self.node, Text):
+            return "BlockLayoutNode('" + self.node.text + "')"
+        else:
+            return "BlockLayoutNode(" + self.node.tag + ")"
+    
