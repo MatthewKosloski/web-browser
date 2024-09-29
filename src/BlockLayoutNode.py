@@ -64,9 +64,11 @@ class BlockLayoutNode:
         if mode == "block":
             previous = None
             for child in self.node.children:
-                next = BlockLayoutNode(self.config, child, self, previous)
-                self.children.append(next)
-                previous = next
+                # Exclude these tags from the layout tree.
+                if child.tag not in ['head', 'script']:
+                    next = BlockLayoutNode(self.config, child, self, previous)
+                    self.children.append(next)
+                    previous = next
         else:
             self.cursor_x = 0
             self.cursor_y = 0
