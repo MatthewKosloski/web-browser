@@ -5,7 +5,6 @@ from DrawRect import DrawRect
 from DrawText import DrawText
 from Element import Element
 from Text import Text
-from InlineLayoutNode import InlineLayoutNode
 
 class BlockLayoutNode:
 
@@ -65,17 +64,23 @@ class BlockLayoutNode:
         if mode == "block":
             previous = None
             for child in self.node.children:
-                if child.tag in self.BLOCK_ELEMENTS:
-                    next = BlockLayoutNode(self.config, child, self, previous)
-                else:
-                    next = InlineLayoutNode(self.config, child, self, previous)
+                next = BlockLayoutNode(self.config, child, self, previous)
                 self.children.append(next)
                 previous = next
         else:
-            previous = None
-            next = InlineLayoutNode(self.config, self.node, self, previous)
-            self.children.append(next)
-            previous = next
+            self.cursor_x = 0
+            self.cursor_y = 0
+            self.weight = "normal"
+            self.style = "roman"
+            self.size = 12
+
+            self.line = []
+            self.recurse(self.node)
+
+            # We need to be tall enough to contain the text.
+            self.height = self.cursor_y
+
+            self.flush()
 
         for child in self.children:
             child.layout()
