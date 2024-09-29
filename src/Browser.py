@@ -46,18 +46,29 @@ class Browser:
         body = url.request()
         config = BrowserConfig(self.width, self.height, self.hstep, self.vstep)
         nodes = HTMLParser(body).parse()
+        
+        print("HTML tree:")
         self.print_tree(nodes)
+
         self.document = DocumentLayoutNode(config, nodes)
         self.document.layout()
-        self.print_tree(self.document)
-        self.display_list = []
-        self.paint_tree(self.document, self.display_list)
+
         self.scrollbar = Scrollbar(
             canvas=self.canvas,
             window_width=self.width,
             window_height=self.height,
             vstep=self.vstep,
             max_y=self.document.height)
+                
+        print("Layout tree:")
+        self.print_tree(self.document)
+        
+        self.display_list = []
+        self.paint_tree(self.document, self.display_list)
+
+        print("Draw commands:")
+        print(self.display_list)
+
         self.draw()
 
     def to_screen_coordinate(self, page_coordinate):
@@ -75,10 +86,10 @@ class Browser:
             if command.bottom < self.scrollbar.scroll: continue
             command.execute(self.scrollbar.scroll, self.canvas)
 
-    def paint_tree(self, layout_objects, display_list):
-        display_list.extend(layout_objects.paint())
+    def paint_tree(self, layout_object, display_list):
+        display_list.extend(layout_object.paint())
 
-        for child in layout_objects.children:
+        for child in layout_object.children:
             self.paint_tree(child, display_list)
 
 if __name__ == "__main__":
