@@ -93,8 +93,6 @@ class BlockLayoutNode:
     def layout_mode(self):
         if isinstance(self.node, Text):
             return "inline"
-        elif self.node.tag in self.BLOCK_ELEMENTS:
-            return "block"
         elif any([isinstance(child, Element) and \
                 child.tag in self.BLOCK_ELEMENTS
                 for child in self.node.children]):
