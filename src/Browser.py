@@ -1,7 +1,9 @@
 import tkinter
 
 from BrowserConfig import BrowserConfig
+from CSSParser import CSSParser
 from DocumentLayoutNode import DocumentLayoutNode
+from Element import Element
 from HTMLParser import HTMLParser
 from Scrollbar import Scrollbar
 from Url import Url
@@ -46,6 +48,8 @@ class Browser:
         body = url.request()
         config = BrowserConfig(self.width, self.height, self.hstep, self.vstep)
         nodes = HTMLParser(body).parse()
+
+        self.style(nodes)
         
         print("HTML tree:")
         self.print_tree(nodes)
@@ -91,6 +95,18 @@ class Browser:
 
         for child in layout_object.children:
             self.paint_tree(child, display_list)
+
+    def style(self, node):
+        node.style = {}
+
+        if isinstance(node, Element) and "style" in node.attributes:
+            pairs = CSSParser(node.attributes["style"]).body()
+
+            for property, value in pairs.items():
+                node.style[property] = value
+
+        for child in node.children:
+            self.style(child)
 
 if __name__ == "__main__":
     import sys
