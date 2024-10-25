@@ -113,7 +113,7 @@ class HTMLParser:
         parts = text.split()
         tag = parts[0].casefold()
         attributes = {}
-        for attrpair in parts[:1]:
+        for attrpair in parts[1:]:
             if "=" in attrpair:
                 # Unquoted attribute.
                 key, value = attrpair.split("=", 1)
