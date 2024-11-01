@@ -2,7 +2,7 @@ import tkinter
 import tkinter.font
 
 from painting.commands import DrawRect, DrawText
-from html2.nodes import Element, Text
+from hypertext.nodes import Element, Text
 
 class BlockLayoutNode:
 

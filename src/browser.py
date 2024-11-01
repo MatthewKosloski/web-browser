@@ -1,8 +1,8 @@
 import tkinter
 
 from css.parser import CSSParser
-from html2.nodes import Element
-from html2.parser import HTMLParser
+from hypertext.nodes import Element
+from hypertext.parser import HTMLParser
 from layout.document_layout_node import DocumentLayoutNode
 from scrollbar import Scrollbar
 from url.url import Url
