@@ -1,0 +1,5 @@
+WINDOW_WIDTH: float = 800
+WINDOW_HEIGHT: float = 600
+
+HORIZONTAL_STEP: float = 13
+VERTICAL_STEP: float = 18

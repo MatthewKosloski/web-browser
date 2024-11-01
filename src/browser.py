@@ -1,5 +1,6 @@
 import tkinter
 
+from constants import WINDOW_WIDTH, WINDOW_HEIGHT
 from css.parser import CSSParser
 from hypertext.nodes import Element
 from hypertext.parser import HTMLParser
@@ -7,25 +8,14 @@ from layout.document_layout_node import DocumentLayoutNode
 from scrollbar import Scrollbar
 from url.url import Url
 
-class BrowserConfig:
-    def __init__(self, width, height, hstep, vstep):
-        self.width = width
-        self.height = height
-        self.hstep = hstep
-        self.vstep = vstep
-
 class Browser:
-    def __init__(self, width = 800, height = 600, hstep = 13, vstep = 18):
-        self.width = width
-        self.height = height
-        self.hstep = hstep
-        self.vstep = vstep
+    def __init__(self):
         self.scrollbar = None
         self.window = tkinter.Tk()
         self.canvas = tkinter.Canvas(
             self.window,
-            width=self.width,
-            height=self.height
+            width=WINDOW_WIDTH,
+            height=WINDOW_HEIGHT
         )
         self.canvas.pack()
 
@@ -51,7 +41,6 @@ class Browser:
 
     def load(self, url):
         body = url.request()
-        config = BrowserConfig(self.width, self.height, self.hstep, self.vstep)
         nodes = HTMLParser(body).parse()
 
         self.style(nodes)
@@ -59,14 +48,11 @@ class Browser:
         print("HTML tree:")
         self.print_tree(nodes)
 
-        self.document = DocumentLayoutNode(config, nodes)
+        self.document = DocumentLayoutNode(nodes)
         self.document.layout()
 
         self.scrollbar = Scrollbar(
             canvas=self.canvas,
-            window_width=self.width,
-            window_height=self.height,
-            vstep=self.vstep,
             max_y=self.document.height)
                 
         print("Layout tree:")
@@ -91,7 +77,7 @@ class Browser:
         self.scrollbar.draw(e)
 
         for command in self.display_list:
-            if command.top > self.scrollbar.scroll + self.height: continue
+            if command.top > self.scrollbar.scroll + WINDOW_HEIGHT: continue
             if command.bottom < self.scrollbar.scroll: continue
             command.execute(self.scrollbar.scroll, self.canvas)
 

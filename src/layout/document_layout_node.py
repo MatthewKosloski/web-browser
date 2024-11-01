@@ -1,8 +1,8 @@
 from .block_layout_node import BlockLayoutNode
+from constants import WINDOW_WIDTH, HORIZONTAL_STEP, VERTICAL_STEP
 
 class DocumentLayoutNode:
-    def __init__(self, config, node):
-        self.config = config
+    def __init__(self, node):
         self.node = node
 
         self.parent = None
@@ -13,11 +13,11 @@ class DocumentLayoutNode:
         self.height = None
 
     def layout(self):
-        self.width = self.config.width - 2 * self.config.hstep
-        self.x = self.config.hstep
-        self.y = self.config.vstep
+        self.width = WINDOW_WIDTH - 2 * HORIZONTAL_STEP
+        self.x = HORIZONTAL_STEP
+        self.y = VERTICAL_STEP
 
-        child = BlockLayoutNode(self.config, self.node, self, None)
+        child = BlockLayoutNode(self.node, self, None)
         self.children.append(child)
         child.layout()
 

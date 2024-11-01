@@ -1,12 +1,11 @@
 import math
 
+from constants import VERTICAL_STEP, WINDOW_HEIGHT
+
 class Scrollbar:
-    def __init__(self, canvas, window_width, window_height, vstep, max_y):
+    def __init__(self, canvas, max_y):
+        self.max_y=max_y
         self.canvas = canvas
-        self.window_width = window_width
-        self.window_height = window_height
-        self.vstep = vstep
-        self.max_y = max_y
         self.scroll = 0
         self.color = "blue"
         self.width = 15
@@ -18,8 +17,8 @@ class Scrollbar:
         """
         Calculates the scrollable distance.
         """
-        if self.max_y + self.vstep > self.window_height:
-            distance = self.max_y + self.vstep - self.window_height
+        if self.max_y + VERTICAL_STEP > WINDOW_HEIGHT:
+            distance = self.max_y + VERTICAL_STEP - WINDOW_HEIGHT
         else:
             # All page contents are within the viewport, therefore,
             # the scrollable distance is zero.
@@ -34,7 +33,7 @@ class Scrollbar:
         """
 
         # We don't want the scroll step to exceed half the height of the window.
-        max_scroll_step = math.floor(self.window_height / 2)
+        max_scroll_step = math.floor(WINDOW_HEIGHT / 2)
 
         scroll_distance = self.calculate_scroll_distance()
 
@@ -69,12 +68,12 @@ class Scrollbar:
 
         if scroll_distance > 0:
 
-            if scroll_distance <= self.window_height:
-                visible_content_percentage = (self.window_height - scroll_distance) / self.window_height
+            if scroll_distance <= WINDOW_HEIGHT:
+                visible_content_percentage = (WINDOW_HEIGHT - scroll_distance) / WINDOW_HEIGHT
             else:
-                visible_content_percentage = self.window_height / scroll_distance
+                visible_content_percentage = WINDOW_HEIGHT / scroll_distance
                 
-            scrollbar_height = visible_content_percentage * self.window_height
+            scrollbar_height = visible_content_percentage * WINDOW_HEIGHT
         else:
             # There is no distance to scroll, therefore, there is no scrollbar.
             scrollbar_height = 0
@@ -102,9 +101,9 @@ class Scrollbar:
             return
 
         y0_lower_limit = 0
-        y0_upper_limit = self.window_height - height
+        y0_upper_limit = WINDOW_HEIGHT - height
         y1_lower_limit = height
-        y1_upper_limit = self.window_height
+        y1_upper_limit = WINDOW_HEIGHT
 
         scroll_steps = self.get_scroll_steps()
         y0_step = (y0_upper_limit - y0_lower_limit) / scroll_steps
@@ -149,7 +148,7 @@ class Scrollbar:
             return
 
         # Do not scroll down past the page.
-        max_scroll = self.max_y + self.vstep - self.window_height
+        max_scroll = self.max_y + VERTICAL_STEP - WINDOW_HEIGHT
         if self.scroll + self.scroll_step >= max_scroll:
             self.scroll = max_scroll
         else:

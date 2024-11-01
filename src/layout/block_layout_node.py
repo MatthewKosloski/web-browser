@@ -1,8 +1,9 @@
 import tkinter
 import tkinter.font
 
-from painting.commands import DrawRect, DrawText
+from constants import HORIZONTAL_STEP, VERTICAL_STEP
 from hypertext.nodes import Element, Text
+from painting.commands import DrawRect, DrawText
 
 class BlockLayoutNode:
 
@@ -17,8 +18,7 @@ class BlockLayoutNode:
         "legend", "details", "summary"
     ]
 
-    def __init__(self, config, node, parent, previous):
-        self.config = config
+    def __init__(self, node, parent, previous):
         self.node = node
         self.parent = parent
         self.previous = previous
@@ -68,7 +68,7 @@ class BlockLayoutNode:
             for child in self.node.children:
                 # Exclude these tags from the layout tree.
                 if child.tag not in ['head', 'script']:
-                    next = BlockLayoutNode(self.config, child, self, previous)
+                    next = BlockLayoutNode(child, self, previous)
                     self.children.append(next)
                     previous = next
         else:
@@ -142,7 +142,7 @@ class BlockLayoutNode:
             # End the current line and start a new one.
             self.flush()
             # Add a gap between paragraphs.
-            self.cursor_y += self.config.vstep
+            self.cursor_y += VERTICAL_STEP
 
     def word(self, word):
         font = self.get_font(self.size, self.weight, self.style)
@@ -151,7 +151,7 @@ class BlockLayoutNode:
         if self.cursor_x + w > self.width:
             # Wrap text to next line.
             self.cursor_y += font.metrics("linespace") * self.LEADING
-            self.cursor_x = self.config.hstep
+            self.cursor_x = HORIZONTAL_STEP
             
             self.flush()
 
