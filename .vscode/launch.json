@@ -12,7 +12,7 @@
             "args": [
                 "file:///${workspaceFolder}/demos/example.html",
             ],
-            "program": "${workspaceFolder}/src/browser2.py",
+            "program": "${workspaceFolder}/src/browser.py",
             "console": "integratedTerminal",
         }
     ]
