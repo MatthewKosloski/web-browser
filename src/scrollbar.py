@@ -1,10 +1,10 @@
 import math
 
-from constants import VERTICAL_STEP, WINDOW_HEIGHT
+from constants import VERTICAL_STEP, WINDOW_WIDTH, WINDOW_HEIGHT
 
 class Scrollbar:
-    def __init__(self, canvas, max_y):
-        self.max_y=max_y
+    def __init__(self, canvas, document_height):
+        self.document_height = document_height
         self.canvas = canvas
         self.scroll = 0
         self.color = "blue"
@@ -17,8 +17,8 @@ class Scrollbar:
         """
         Calculates the scrollable distance.
         """
-        if self.max_y + VERTICAL_STEP > WINDOW_HEIGHT:
-            distance = self.max_y + VERTICAL_STEP - WINDOW_HEIGHT
+        if self.document_height + VERTICAL_STEP > WINDOW_HEIGHT:
+            distance = self.document_height + VERTICAL_STEP - WINDOW_HEIGHT
         else:
             # All page contents are within the viewport, therefore,
             # the scrollable distance is zero.
@@ -136,8 +136,8 @@ class Scrollbar:
         elif self.y1 <= y1_lower_limit:
             self.y1 = y1_lower_limit
 
-        x0, y0 = (self.window_width - self.width, self.y0)
-        x1, y1 = (self.window_width, self.y1)
+        x0, y0 = (WINDOW_WIDTH - self.width, self.y0)
+        x1, y1 = (WINDOW_WIDTH, self.y1)
 
         self.canvas.create_rectangle(x0, y0, x1, y1, fill = self.color, width = 0)
 
@@ -148,7 +148,7 @@ class Scrollbar:
             return
 
         # Do not scroll down past the page.
-        max_scroll = self.max_y + VERTICAL_STEP - WINDOW_HEIGHT
+        max_scroll = self.document_height + VERTICAL_STEP - WINDOW_HEIGHT
         if self.scroll + self.scroll_step >= max_scroll:
             self.scroll = max_scroll
         else:

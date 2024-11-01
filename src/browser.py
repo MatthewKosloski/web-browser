@@ -51,9 +51,7 @@ class Browser:
         self.document = DocumentLayoutNode(nodes)
         self.document.layout()
 
-        self.scrollbar = Scrollbar(
-            canvas=self.canvas,
-            max_y=self.document.height)
+        self.scrollbar = Scrollbar(self.canvas, self.document.height)
                 
         print("Layout tree:")
         self.print_tree(self.document)
