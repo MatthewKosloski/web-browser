@@ -1,5 +1,4 @@
-from Text import Text
-from Element import Element
+from .nodes import Element, Text
 
 class HTMLParser:
 

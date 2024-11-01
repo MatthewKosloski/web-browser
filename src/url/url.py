@@ -1,7 +1,7 @@
 import socket
 import ssl
 
-from UrlParser import UrlParser
+from url.parser import UrlParser
 
 class Url:
     '''

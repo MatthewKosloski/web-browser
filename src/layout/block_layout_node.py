@@ -1,10 +1,8 @@
 import tkinter
 import tkinter.font
 
-from DrawRect import DrawRect
-from DrawText import DrawText
-from Element import Element
-from Text import Text
+from painting.commands import DrawRect, DrawText
+from html2.nodes import Element, Text
 
 class BlockLayoutNode:
 

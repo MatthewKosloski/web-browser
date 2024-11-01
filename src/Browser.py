@@ -1,15 +1,20 @@
 import tkinter
 
-from BrowserConfig import BrowserConfig
-from css.CSSParser import CSSParser
-from DocumentLayoutNode import DocumentLayoutNode
-from Element import Element
-from HTMLParser import HTMLParser
-from Scrollbar import Scrollbar
-from Url import Url
+from css.parser import CSSParser
+from html2.nodes import Element
+from html2.parser import HTMLParser
+from layout.document_layout_node import DocumentLayoutNode
+from scrollbar import Scrollbar
+from url.url import Url
+
+class BrowserConfig:
+    def __init__(self, width, height, hstep, vstep):
+        self.width = width
+        self.height = height
+        self.hstep = hstep
+        self.vstep = vstep
 
 class Browser:
-
     def __init__(self, width = 800, height = 600, hstep = 13, vstep = 18):
         self.width = width
         self.height = height

@@ -1,4 +1,4 @@
-from BlockLayoutNode import BlockLayoutNode
+from .block_layout_node import BlockLayoutNode
 
 class DocumentLayoutNode:
     def __init__(self, config, node):
