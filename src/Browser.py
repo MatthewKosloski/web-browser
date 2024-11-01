@@ -1,7 +1,7 @@
 import tkinter
 
 from BrowserConfig import BrowserConfig
-from CSSParser import CSSParser
+from css.CSSParser import CSSParser
 from DocumentLayoutNode import DocumentLayoutNode
 from Element import Element
 from HTMLParser import HTMLParser
