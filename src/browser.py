@@ -1,4 +1,5 @@
 import tkinter
+import os
 
 from constants import WINDOW_WIDTH, WINDOW_HEIGHT
 from css.parser import CSSParser
@@ -23,6 +24,12 @@ class Browser:
         self.window.bind("<Down>", self.handle_event_down)
         self.window.bind("<Up>", self.handle_event_up)
 
+    def tree_to_list(self, tree, list):
+        list.append(tree)
+        for child in tree.children:
+            self.tree_to_list(child, list)
+        return list
+
     def load(self, url):
         # Get HTML document, either from disk or the internet.
         body = url.request()
@@ -33,8 +40,33 @@ class Browser:
         print("HTML tree:")
         self.log_tree(nodes)
 
-        # Apply a CSS parser to each node's style attribute.
-        self.style(nodes)
+        # Get user agent default styles.
+        default_stylesheet_path = os.path.join(os.path.dirname(__file__), "css/browser.css")
+        default_stylesheet_content = open(default_stylesheet_path).read()
+        rules = CSSParser(default_stylesheet_content).parse().copy()
+
+        # Grab the URL of each linked style sheet.
+        node_list = self.tree_to_list(nodes, [])
+        links = []
+        for node in node_list:
+            if isinstance(node, Element) \
+            and node.tag == "link" \
+            and node.attributes.get("rel") == "stylesheet" \
+            and "href" in node.attributes:
+                links.append(node.attributes["href"])
+        
+        # Include CSS rules from each linked style sheet.
+        for link in links:
+            style_url = url.resolve(link)
+            try:
+                body = style_url.request()
+            except:
+                # Ignore stylesheets that fail to download.
+                continue
+
+            rules.extend(CSSParser(body).parse())
+
+        self.style(nodes, rules)
 
         # From the HTML tree, produce a layout tree with a root DocumentLayoutNode.
         self.document = DocumentLayoutNode(nodes)
@@ -56,9 +88,16 @@ class Browser:
         # Execute each draw command.
         self.draw()
 
-    def style(self, node):
+    def style(self, node, rules):
         node.style = {}
 
+        for selector, body in rules:
+            if not selector.matches(node): continue
+            for property, value in body.items():
+                node.style[property] = value
+
+        # Parse the style attribute after the rules.
+        # The style attribute has higher specificity.
         if isinstance(node, Element) and "style" in node.attributes:
             pairs = CSSParser(node.attributes["style"]).body()
 
@@ -66,7 +105,7 @@ class Browser:
                 node.style[property] = value
 
         for child in node.children:
-            self.style(child)
+            self.style(child, rules)
 
     def paint(self, layout_object, display_list):
         display_list.extend(layout_object.paint())

@@ -81,7 +81,6 @@ class Url:
 
         return content
     
-
     def read_file(self, file_path):
         try:
             with open(file_path, 'r') as file:
@@ -90,3 +89,22 @@ class Url:
         except FileNotFoundError:
             print(f"Error: File not found at {file_path}")
             return None
+        
+    def resolve(self, url):
+        if "://" in url: return Url(url)
+        if not url.startswith("/"):
+            dir, _ = self.path.rsplit("/", 1)
+            while url.startswith("../"):
+                _, url = url.split("/", 1)
+                if "/" in dir:
+                    dir, _ = dir.rsplit("/", 1)
+            url = dir + "/" + url
+        if url.startswith("//"):
+            return Url(self.scheme + ":" + url)
+        elif self.host is not None and self.port is not None:
+            return Url(self.scheme + "://" + self.host + \
+                ":" + str(self.port) + url)
+        elif self.host is not None:
+            return Url(self.scheme + "://" + self.host + url)
+        else:
+            return Url(self.scheme + "://" + url)

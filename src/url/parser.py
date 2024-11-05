@@ -12,8 +12,12 @@ class UrlParser:
         supported_schemes = ["file", "http", "https"]
         assert scheme in supported_schemes
 
-        host, url = url.split("/", 1)
-        path = "/" + url
+        if scheme in ["http", "https"]:
+            host, url = url.split("/", 1)
+            path = "/" + url
+        else:
+            host = ''
+            path = url
 
         # Parse port.
         if ":" in host:
@@ -28,7 +32,7 @@ class UrlParser:
             port = None
 
         # Remove leading forward slash in front of a file path.
-        if scheme == "file":
+        if scheme == "file" and path[0] == "/":
             path = path[1:]
 
         if host == "":
