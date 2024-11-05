@@ -14,8 +14,7 @@ class Browser:
         self.canvas = tkinter.Canvas(
             self.window,
             width=WINDOW_WIDTH,
-            height=WINDOW_HEIGHT
-        )
+            height=WINDOW_HEIGHT)
         self.canvas.pack()
 
         # Bind events to event handlers.
