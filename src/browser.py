@@ -78,12 +78,6 @@ class Browser:
             if command.bottom < self.scrollbar.scroll: continue
             command.execute(self.scrollbar.scroll, self.canvas)
 
-    def to_screen_coordinate(self, page_coordinate):
-        page_x, page_y = page_coordinate
-        screen_x, screen_y = (page_x, page_y - self.scrollbar.scroll)
-
-        return (screen_x, screen_y)
-
     def handle_event_down(self, e):
         if self.scrollbar is not None:
             self.scrollbar.scroll_down(e)
