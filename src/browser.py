@@ -21,12 +21,6 @@ class Browser:
         self.window.bind("<Down>", self.handle_event_down)
         self.window.bind("<Up>", self.handle_event_up)
 
-    def tree_to_list(self, tree, list):
-        list.append(tree)
-        for child in tree.children:
-            self.tree_to_list(child, list)
-        return list
-
     def load(self, url):
         # Get HTML document, either from disk or the internet.
         body = url.request()
