@@ -42,8 +42,8 @@ class BlockLayoutNode:
                 commands.append(rect)
 
         if self.layout_mode() == "inline":
-            for x, y, word, font in self.display_list:
-                commands.append(DrawText(x, y, word, font))
+            for x, y, word, font, color in self.display_list:
+                commands.append(DrawText(x, y, word, font, color))
         return commands
 
     def layout(self):
@@ -106,46 +106,34 @@ class BlockLayoutNode:
         else:
             return "block"
 
-    def recurse(self, tree):
-        if isinstance(tree, Text):
-            for word in tree.text.split():
-                self.word(word)
+    def recurse(self, node):
+        if isinstance(node, Text):
+            for word in node.text.split():
+                self.word(node, word)
         else:
-            self.open_tag(tree.tag)
-            for child in tree.children:
+            if node.tag == "br":
+                # End the current line and start a new one.
+                self.flush()
+            for child in node.children:
                 self.recurse(child)
-            self.close_tag(tree.tag)
+            if node.tag in self.BLOCK_ELEMENTS:
+                # End the current line and start a new one.
+                self.flush()
+                # Add a gap between paragraphs.
+                self.cursor_y += VERTICAL_STEP
 
-    def open_tag(self, tag):
-        if tag == "i":
-            self.style = "italic"
-        elif tag == "b":
-            self.weight = "bold"
-        elif tag == "small":
-            self.size -= 2
-        elif tag == "big":
-            self.size += 4
-        elif tag == "br":
-            # End the current line and start a new one.
-            self.flush()
+    def word(self, node, word):
+        weight = node.style["font-weight"]
+        style = node.style["font-style"]
+        color = node.style["color"]
 
-    def close_tag(self, tag):
-        if tag == "i":
-            self.style = "roman"
-        elif tag == "b":
-            self.weight = "normal"
-        elif tag == "small":
-            self.size += 2
-        elif tag == "big":
-            self.size -= 4
-        elif tag in self.BLOCK_ELEMENTS:
-            # End the current line and start a new one.
-            self.flush()
-            # Add a gap between paragraphs.
-            self.cursor_y += VERTICAL_STEP
+        # Translate CSS "normal" to Tk "roman".
+        if style == "normal": style = "roman"
 
-    def word(self, word):
-        font = self.get_font(self.size, self.weight, self.style)
+        # Convert CSS pixels to Tk points.
+        size = int(float(node.style["font-size"][:-2]) * 0.75)
+
+        font = self.get_font(size, weight, style)
         w = font.measure(word)
 
         if self.cursor_x + w > self.width:
@@ -155,14 +143,14 @@ class BlockLayoutNode:
             
             self.flush()
 
-        self.line.append((self.cursor_x, word, font))
+        self.line.append((self.cursor_x, word, font, color))
 
         # " " adds back the whitespace that was removed when splitting the text.
         self.cursor_x += w + font.measure(" ")
 
     def flush(self):
         if not self.line: return
-        metrics = [font.metrics() for x, word, font in self.line]
+        metrics = [font.metrics() for x, word, font, color in self.line]
 
         # The top of the tallest glyph.
         max_ascent = max(metric["ascent"] for metric in metrics)
@@ -170,10 +158,10 @@ class BlockLayoutNode:
         baseline = self.cursor_y + self.LEADING * max_ascent
 
         # Align each word vertically relative to the baseline.
-        for rel_x, word, font in self.line:
+        for rel_x, word, font, color in self.line:
             x = self.x + rel_x
             y = self.y + baseline - font.metrics("ascent")
-            self.display_list.append((x, y, word, font))
+            self.display_list.append((x, y, word, font, color))
 
         # The bottom of the deepest glyph.
         max_descent = max([metric["descent"] for metric in metrics])
