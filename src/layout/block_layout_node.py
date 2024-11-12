@@ -67,7 +67,7 @@ class BlockLayoutNode:
             previous = None
             for child in self.node.children:
                 # Exclude these tags from the layout tree.
-                if child.tag not in ['head', 'script']:
+                if isinstance(child, Element) and child.tag not in ['head', 'script']:
                     next = BlockLayoutNode(child, self, previous)
                     self.children.append(next)
                     previous = next
