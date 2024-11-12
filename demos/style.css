@@ -1,3 +1,7 @@
+div pre {
+    background-color: red;
+}
+
 pre {
     background-color: green;
 }

@@ -8,13 +8,13 @@ class StyleComputer:
     def __init__(self, html, url):
         self.html = html
         self.url = url
+        self.rules = sorted(self.get_rules(), key=self.cascade_priority)
 
     def compute_style(self, node):
-        rules = self.get_rules()
         node.style = {}
 
         # Apply style sheet rules to the node.
-        for selector, body in rules:
+        for selector, body in self.rules:
             if not selector.matches(node): continue
             for property, value in body.items():
                 node.style[property] = value
@@ -70,3 +70,7 @@ class StyleComputer:
         for child in tree.children:
             self.tree_to_list(child, list)
         return list
+    
+    def cascade_priority(self, rule):
+        selector, body = rule
+        return selector.priority
