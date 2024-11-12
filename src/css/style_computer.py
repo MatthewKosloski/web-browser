@@ -13,19 +13,20 @@ class StyleComputer:
         rules = self.get_rules()
         node.style = {}
 
+        # Apply style sheet rules to the node.
         for selector, body in rules:
             if not selector.matches(node): continue
             for property, value in body.items():
                 node.style[property] = value
 
-        # Parse the style attribute after the rules.
-        # The style attribute has higher specificity.
+        # Apple style attribute rules to the node.
         if isinstance(node, Element) and "style" in node.attributes:
             pairs = CSSParser(node.attributes["style"]).body()
 
             for property, value in pairs.items():
                 node.style[property] = value
 
+        # Compute style of children.
         for child in node.children:
             self.compute_style(child)
     
