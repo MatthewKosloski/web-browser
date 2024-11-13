@@ -1,9 +1,11 @@
 import tkinter
 import tkinter.font
 
-from constants import HORIZONTAL_STEP, VERTICAL_STEP
+from constants import VERTICAL_STEP
 from hypertext.nodes import Element, Text
-from painting.commands import DrawRect, DrawText
+from painting.commands import DrawRect
+from .text_layout_node import TextLayoutNode
+from .line_layout_node import LineLayoutNode
 
 class BlockLayoutNode:
 
@@ -27,7 +29,6 @@ class BlockLayoutNode:
         self.y = None
         self.width = None
         self.height = None
-        self.display_list = []
 
     def paint(self):
         commands = []
@@ -41,9 +42,6 @@ class BlockLayoutNode:
                 rect = DrawRect(self.x, self.y, x2, y2, bgcolor)
                 commands.append(rect)
 
-        if self.layout_mode() == "inline":
-            for x, y, word, font, color in self.display_list:
-                commands.append(DrawText(x, y, word, font, color))
         return commands
 
     def layout(self):
@@ -78,21 +76,18 @@ class BlockLayoutNode:
             self.style = "roman"
             self.size = 12
 
-            self.line = []
+            self.new_line()
             self.recurse(self.node)
 
             # We need to be tall enough to contain the text.
             self.height = self.cursor_y
 
-            self.flush()
-
         for child in self.children:
             child.layout()
 
-        if mode == "block":
-            # Height is the sum of all the children's heights. Therefore,
-            # we need to compute the height after laying out the children.
-            self.height = sum([child.height for child in self.children])
+        # Height is the sum of all the children's heights. Therefore,
+        # we need to compute the height after laying out the children.
+        self.height = sum([child.height for child in self.children])
 
     def layout_mode(self):
         if isinstance(self.node, Text):
@@ -111,21 +106,15 @@ class BlockLayoutNode:
             for word in node.text.split():
                 self.word(node, word)
         else:
-            if node.tag == "br":
-                # End the current line and start a new one.
-                self.flush()
             for child in node.children:
                 self.recurse(child)
             if node.tag in self.BLOCK_ELEMENTS:
-                # End the current line and start a new one.
-                self.flush()
                 # Add a gap between paragraphs.
                 self.cursor_y += VERTICAL_STEP
 
     def word(self, node, word):
         weight = node.style["font-weight"]
         style = node.style["font-style"]
-        color = node.style["color"]
 
         # Translate CSS "normal" to Tk "roman".
         if style == "normal": style = "roman"
@@ -138,38 +127,21 @@ class BlockLayoutNode:
 
         if self.cursor_x + w > self.width:
             # Wrap text to next line.
-            self.cursor_y += font.metrics("linespace") * self.LEADING
-            self.cursor_x = HORIZONTAL_STEP
-            
-            self.flush()
-
-        self.line.append((self.cursor_x, word, font, color))
+            self.new_line()
+        
+        line = self.children[-1]
+        previous_word = line.children[-1] if line.children else None
+        text = TextLayoutNode(node, word, line, previous_word)
+        line.children.append(text)
 
         # " " adds back the whitespace that was removed when splitting the text.
         self.cursor_x += w + font.measure(" ")
 
-    def flush(self):
-        if not self.line: return
-        metrics = [font.metrics() for x, word, font, color in self.line]
-
-        # The top of the tallest glyph.
-        max_ascent = max(metric["ascent"] for metric in metrics)
-
-        baseline = self.cursor_y + self.LEADING * max_ascent
-
-        # Align each word vertically relative to the baseline.
-        for rel_x, word, font, color in self.line:
-            x = self.x + rel_x
-            y = self.y + baseline - font.metrics("ascent")
-            self.display_list.append((x, y, word, font, color))
-
-        # The bottom of the deepest glyph.
-        max_descent = max([metric["descent"] for metric in metrics])
-
-        self.cursor_y = baseline + self.LEADING * max_descent
-
+    def new_line(self):
         self.cursor_x = 0
-        self.line = []
+        last_line = self.children[-1] if self.children else None
+        new_line = LineLayoutNode(self.node, self, last_line)
+        self.children.append(new_line)
 
     def get_font(self, size, weight, style):
         key = (size, weight, style)
