@@ -52,7 +52,8 @@ class Browser:
         self.paint(self.document, self.display_list)
 
         print("Draw commands:")
-        print(self.display_list)
+        for command in self.display_list:
+            print(command)
 
         # Execute each draw command.
         self.draw()
