@@ -1,11 +1,11 @@
 import math
 
 from constants import VERTICAL_STEP, WINDOW_WIDTH, WINDOW_HEIGHT
+from painting.commands import DrawRect
 
 class Scrollbar:
-    def __init__(self, canvas, document_height):
+    def __init__(self, document_height):
         self.document_height = document_height
-        self.canvas = canvas
         self.scroll = 0
         self.color = "blue"
         self.width = 15
@@ -93,10 +93,10 @@ class Scrollbar:
 
         return num_steps
  
-    def draw(self, e = None):
+    def paint(self, e = None):
         height = self.calculate_height()
 
-        # We don't need to draw a scrollbar.
+        # We don't need to paint a scrollbar.
         if height <= 0:
             return
 
@@ -139,7 +139,7 @@ class Scrollbar:
         x0, y0 = (WINDOW_WIDTH - self.width, self.y0)
         x1, y1 = (WINDOW_WIDTH, self.y1)
 
-        self.canvas.create_rectangle(x0, y0, x1, y1, fill = self.color, width = 0)
+        return DrawRect(x0, y0, x1, y1, self.color)
 
     def scroll_down(self, e):
         # Check if we have a scrollbar. If not, then don't do anything.
