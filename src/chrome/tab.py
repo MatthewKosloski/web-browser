@@ -52,13 +52,13 @@ class Tab:
         # Draw the scrollbar.
         scroll_cmd = self.scrollbar.paint(e)        
         if scroll_cmd is not None:
-            scroll_cmd.execute(0, canvas)
+            scroll_cmd.execute(canvas)
 
         # Draw the web page.
         for command in self.display_list:
             if command.top > self.scrollbar.scroll + WINDOW_HEIGHT: continue
             if command.bottom < self.scrollbar.scroll: continue
-            command.execute(self.scrollbar.scroll, canvas)
+            command.execute(canvas, self.scrollbar.scroll)
 
     def paint(self, layout_object, display_list):
         self.display_list.extend(layout_object.paint())

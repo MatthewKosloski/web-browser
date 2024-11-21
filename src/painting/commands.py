@@ -6,7 +6,7 @@ class DrawRect:
         self.right = x2
         self.color = color
 
-    def execute(self, scroll, canvas):
+    def execute(self, canvas, scroll = 0):
         canvas.create_rectangle(
             self.left,
             self.top - scroll,
@@ -28,7 +28,7 @@ class DrawText:
         self.font = font
         self.color = color
 
-    def execute(self, scroll, canvas):
+    def execute(self, canvas, scroll = 0):
         canvas.create_text(
             self.left,
             self.top - scroll,
