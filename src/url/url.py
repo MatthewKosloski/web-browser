@@ -50,6 +50,7 @@ class Url:
         # otherwise the server will keep waiting for that
         # newline, and we'll keep waiting on its response.
         request += "Host: {}\r\n".format(self.host)
+        request += "User-Agent: {}\r\n".format('MonarchBrowser/1.0.0')
         request += "\r\n"
 
         # Convert the text into bytes and send the request.
