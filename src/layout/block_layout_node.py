@@ -1,11 +1,12 @@
 import tkinter
 import tkinter.font
 
+from .line_layout_node import LineLayoutNode
+from .text_layout_node import TextLayoutNode
 from constants import VERTICAL_STEP
 from hypertext.nodes import Element, Text
 from painting.commands import DrawRect
-from .text_layout_node import TextLayoutNode
-from .line_layout_node import LineLayoutNode
+from painting.shapes import Rect
 
 class BlockLayoutNode:
 
@@ -39,7 +40,7 @@ class BlockLayoutNode:
 
             if bgcolor != "transparent":
                 x2, y2 = self.x + self.width, self.y + self.height
-                rect = DrawRect(self.x, self.y, x2, y2, bgcolor)
+                rect = DrawRect(Rect(self.x, self.y, x2, y2), bgcolor)
                 commands.append(rect)
 
         return commands

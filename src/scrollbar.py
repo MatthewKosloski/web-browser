@@ -2,10 +2,12 @@ import math
 
 from constants import VERTICAL_STEP, WINDOW_WIDTH, WINDOW_HEIGHT
 from painting.commands import DrawRect
+from painting.shapes import Rect
 
 class Scrollbar:
-    def __init__(self, document_height):
+    def __init__(self, document_height, tab_height):
         self.document_height = document_height
+        self.tab_height = tab_height
         self.scroll = 0
         self.color = "blue"
         self.width = 15
@@ -139,7 +141,7 @@ class Scrollbar:
         x0, y0 = (WINDOW_WIDTH - self.width, self.y0)
         x1, y1 = (WINDOW_WIDTH, self.y1)
 
-        return DrawRect(x0, y0, x1, y1, self.color)
+        return DrawRect(Rect(x0, y0, x1, y1), self.color)
 
     def scroll_down(self, e):
         # Check if we have a scrollbar. If not, then don't do anything.
@@ -148,7 +150,7 @@ class Scrollbar:
             return
 
         # Do not scroll down past the page.
-        max_scroll = self.document_height + VERTICAL_STEP - WINDOW_HEIGHT
+        max_scroll = self.document_height + VERTICAL_STEP - WINDOW_HEIGHT - self.tab_height
         if self.scroll + self.scroll_step >= max_scroll:
             self.scroll = max_scroll
         else:

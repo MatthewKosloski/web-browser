@@ -2,6 +2,7 @@ import tkinter
 import tkinter.font
 
 from painting.commands import DrawText
+from painting.shapes import Rect
 
 class TextLayoutNode:
 
@@ -40,7 +41,7 @@ class TextLayoutNode:
 
     def paint(self):
         color = self.node.style["color"]
-        return [DrawText(self.x, self.y, self.word, self.font, color)]
+        return [DrawText(Rect(self.x, self.y), self.word, self.font, color)]
 
     def get_font(self, size, weight, style):
         key = (size, weight, style)
