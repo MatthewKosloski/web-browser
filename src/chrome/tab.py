@@ -12,7 +12,7 @@ class Tab:
         self.display_list = []
         self.scrollbar_display_list = []
         self.url = None
-        self.tab_height = WINDOW_HEIGHT - browser.chrome.bottom
+        self.height = WINDOW_HEIGHT - browser.chrome.bottom
 
     def load(self, url):
         self.scrollbar = None
@@ -40,8 +40,8 @@ class Tab:
         print("Layout tree:")
         self.log_tree(self.document)
 
-        # Create a scrollbar using the height of the root node of the layout tree.
-        self.scrollbar = Scrollbar(self.document.height, self.tab_height)
+        # Create a scrollbar.
+        self.scrollbar = Scrollbar(self)
 
         # From the layout tree, produce a linear list of draw commands.
         self.paint(self.document, self.display_list)
@@ -60,7 +60,7 @@ class Tab:
         for command in self.display_list:
             if command.rect.top > self.scrollbar.scroll + WINDOW_HEIGHT: continue
             if command.rect.bottom < self.scrollbar.scroll: continue
-            command.execute(self.browser.canvas, self.scrollbar.scroll - self.browser.chrome.bottom)
+            command.execute(self.browser.canvas, self.scrollbar.scroll)
 
     def paint(self, layout_object, display_list):
         self.display_list.extend(layout_object.paint())

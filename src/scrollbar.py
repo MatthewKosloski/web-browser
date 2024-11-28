@@ -5,9 +5,8 @@ from painting.commands import DrawRect
 from painting.shapes import Rect
 
 class Scrollbar:
-    def __init__(self, document_height, tab_height):
-        self.document_height = document_height
-        self.tab_height = tab_height
+    def __init__(self, tab):
+        self.tab = tab
         self.scroll = 0
         self.color = "blue"
         self.width = 15
@@ -19,8 +18,8 @@ class Scrollbar:
         """
         Calculates the scrollable distance.
         """
-        if self.document_height + VERTICAL_STEP > WINDOW_HEIGHT:
-            distance = self.document_height + VERTICAL_STEP - WINDOW_HEIGHT
+        if self.tab.document.height + VERTICAL_STEP > WINDOW_HEIGHT:
+            distance = self.tab.document.height + VERTICAL_STEP - WINDOW_HEIGHT
         else:
             # All page contents are within the viewport, therefore,
             # the scrollable distance is zero.
@@ -150,7 +149,7 @@ class Scrollbar:
             return
 
         # Do not scroll down past the page.
-        max_scroll = self.document_height + VERTICAL_STEP - WINDOW_HEIGHT - self.tab_height
+        max_scroll = self.tab.document.height + VERTICAL_STEP - WINDOW_HEIGHT
         if self.scroll + self.scroll_step >= max_scroll:
             self.scroll = max_scroll
         else:
