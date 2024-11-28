@@ -12,14 +12,18 @@ class Scrollbar:
         self.width = 15
         self.y0 = None
         self.y1 = None
+        self.viewport_height = (WINDOW_HEIGHT - self.tab.browser.chrome.bottom)
         self.scroll_step = self.calculate_scroll_step()
 
     def calculate_scroll_distance(self):
         """
         Calculates the scrollable distance.
         """
-        if self.tab.document.height + VERTICAL_STEP > WINDOW_HEIGHT:
-            distance = self.tab.document.height + VERTICAL_STEP - WINDOW_HEIGHT
+        if self.tab.document.height + VERTICAL_STEP > self.viewport_height:
+            # The height of the web page contents exceeds the height of
+            # the viewable area. Therefore, the scrollable distance is
+            # the height of the document that's outside the viewable area. 
+            distance = self.tab.document.height + VERTICAL_STEP - self.viewport_height
         else:
             # All page contents are within the viewport, therefore,
             # the scrollable distance is zero.
@@ -34,7 +38,7 @@ class Scrollbar:
         """
 
         # We don't want the scroll step to exceed half the height of the window.
-        max_scroll_step = math.floor(WINDOW_HEIGHT / 2)
+        max_scroll_step = math.floor(self.viewport_height / 2)
 
         scroll_distance = self.calculate_scroll_distance()
 
@@ -69,12 +73,12 @@ class Scrollbar:
 
         if scroll_distance > 0:
 
-            if scroll_distance <= WINDOW_HEIGHT:
-                visible_content_percentage = (WINDOW_HEIGHT - scroll_distance) / WINDOW_HEIGHT
+            if scroll_distance <= self.viewport_height:
+                visible_content_percentage = (self.viewport_height - scroll_distance) / self.viewport_height
             else:
-                visible_content_percentage = WINDOW_HEIGHT / scroll_distance
+                visible_content_percentage = self.viewport_height / scroll_distance
                 
-            scrollbar_height = visible_content_percentage * WINDOW_HEIGHT
+            scrollbar_height = visible_content_percentage * self.viewport_height
         else:
             # There is no distance to scroll, therefore, there is no scrollbar.
             scrollbar_height = 0
@@ -101,37 +105,35 @@ class Scrollbar:
         if height <= 0:
             return
 
-        y0_lower_limit = 0
+        y0_lower_limit = self.tab.browser.chrome.bottom
         y0_upper_limit = WINDOW_HEIGHT - height
-        y1_lower_limit = height
+        y1_lower_limit = self.tab.browser.chrome.bottom + height
         y1_upper_limit = WINDOW_HEIGHT
 
         scroll_steps = self.get_scroll_steps()
-        y0_step = (y0_upper_limit - y0_lower_limit) / scroll_steps
-        y1_step = (y1_upper_limit - y1_lower_limit) / scroll_steps
+        step = (self.viewport_height - height) / scroll_steps
 
         if self.y0 is None:
-            self.y0 = 0
-        if e is not None and e.keysym == "Down":
-            self.y0 += y0_step
-        elif e is not None and e.keysym == "Up":
-            self.y0 -= y0_step
-
-        
-        if self.y1 is None:
-            self.y1 = height
+            self.y0 = y0_lower_limit
         elif e is not None and e.keysym == "Down":
-            self.y1 += y1_step
+            self.y0 += step
         elif e is not None and e.keysym == "Up":
-            self.y1 -= y1_step
+            self.y0 -= step
 
-        # Prevent y0 from exiting boundary.
+        if self.y1 is None:
+            self.y1 = y1_lower_limit
+        elif e is not None and e.keysym == "Down":
+            self.y1 += step
+        elif e is not None and e.keysym == "Up":
+            self.y1 -= step
+
+        # Prevent y0 from exiting window boundary.
         if self.y0 >= y0_upper_limit:
             self.y0 = y0_upper_limit
         elif self.y0 <= y0_lower_limit:
             self.y0 = y0_lower_limit
 
-        # Prevent y1 from exiting boundary.
+        # Prevent y1 from exiting window boundary.
         if self.y1 >= y1_upper_limit:
             self.y1 = y1_upper_limit
         elif self.y1 <= y1_lower_limit:
@@ -149,7 +151,7 @@ class Scrollbar:
             return
 
         # Do not scroll down past the page.
-        max_scroll = self.tab.document.height + VERTICAL_STEP - WINDOW_HEIGHT
+        max_scroll = self.tab.document.height + VERTICAL_STEP - WINDOW_HEIGHT + self.tab.browser.chrome.bottom
         if self.scroll + self.scroll_step >= max_scroll:
             self.scroll = max_scroll
         else:

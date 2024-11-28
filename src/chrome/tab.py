@@ -60,7 +60,7 @@ class Tab:
         for command in self.display_list:
             if command.rect.top > self.scrollbar.scroll + WINDOW_HEIGHT: continue
             if command.rect.bottom < self.scrollbar.scroll: continue
-            command.execute(self.browser.canvas, self.scrollbar.scroll)
+            command.execute(self.browser.canvas, self.scrollbar.scroll - self.browser.chrome.bottom)
 
     def paint(self, layout_object, display_list):
         self.display_list.extend(layout_object.paint())
