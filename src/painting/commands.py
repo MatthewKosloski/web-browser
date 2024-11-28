@@ -18,6 +18,7 @@ class DrawRect:
         
 class DrawText:
     def __init__(self, rect, text, font, color):
+        rect.bottom = rect.top + font.metrics("linespace")
         self.rect = rect
         self.text = text
         self.font = font
