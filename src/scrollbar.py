@@ -37,8 +37,8 @@ class Scrollbar:
         we want to move the scroll bar down for each scroll event.
         """
 
-        # We don't want the scroll step to exceed half the height of the window.
-        max_scroll_step = math.floor(self.viewport_height / 2)
+        # We don't want the scroll step to exceed 5% of the viewport height.
+        max_scroll_step = math.floor(self.viewport_height * 0.05)
 
         scroll_distance = self.calculate_scroll_distance()
 
