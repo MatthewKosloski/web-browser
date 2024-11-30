@@ -12,18 +12,17 @@ class Scrollbar:
         self.width = 15
         self.y0 = None
         self.y1 = None
-        self.viewport_height = (WINDOW_HEIGHT - self.tab.browser.chrome.bottom)
         self.scroll_step = self.calculate_scroll_step()
 
     def calculate_scroll_distance(self):
         """
         Calculates the scrollable distance.
         """
-        if self.tab.document.height + VERTICAL_STEP > self.viewport_height:
+        if self.tab.document.height + VERTICAL_STEP > self.tab.height:
             # The height of the web page contents exceeds the height of
             # the viewable area. Therefore, the scrollable distance is
             # the height of the document that's outside the viewable area. 
-            distance = self.tab.document.height + VERTICAL_STEP - self.viewport_height
+            distance = self.tab.document.height + VERTICAL_STEP - self.tab.height
         else:
             # All page contents are within the viewport, therefore,
             # the scrollable distance is zero.
@@ -38,7 +37,7 @@ class Scrollbar:
         """
 
         # We don't want the scroll step to exceed 5% of the viewport height.
-        max_scroll_step = math.floor(self.viewport_height * 0.05)
+        max_scroll_step = math.floor(self.tab.height * 0.05)
 
         scroll_distance = self.calculate_scroll_distance()
 
@@ -73,12 +72,12 @@ class Scrollbar:
 
         if scroll_distance > 0:
 
-            if scroll_distance <= self.viewport_height:
-                visible_content_percentage = (self.viewport_height - scroll_distance) / self.viewport_height
+            if scroll_distance <= self.tab.height:
+                visible_content_percentage = (self.tab.height - scroll_distance) / self.tab.height
             else:
-                visible_content_percentage = self.viewport_height / scroll_distance
+                visible_content_percentage = self.tab.height / scroll_distance
                 
-            scrollbar_height = visible_content_percentage * self.viewport_height
+            scrollbar_height = visible_content_percentage * self.tab.height
         else:
             # There is no distance to scroll, therefore, there is no scrollbar.
             scrollbar_height = 0
@@ -111,7 +110,7 @@ class Scrollbar:
         y1_upper_limit = WINDOW_HEIGHT
 
         scroll_steps = self.get_scroll_steps()
-        step = (self.viewport_height - height) / scroll_steps
+        step = (self.tab.height - height) / scroll_steps
 
         if self.y0 is None:
             self.y0 = y0_lower_limit
