@@ -1,9 +1,9 @@
+from chrome.scrollbar import Scrollbar
 from constants import WINDOW_HEIGHT
 from css.style_computer import StyleComputer
 from hypertext.nodes import Text
 from hypertext.parser import HTMLParser
 from layout.document_layout_node import DocumentLayoutNode
-from scrollbar import Scrollbar
 
 class Tab:
     def __init__(self, browser):
