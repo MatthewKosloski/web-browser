@@ -14,7 +14,7 @@ class Scrollbar:
         self.y1 = None
         self.scroll_step = self.calculate_scroll_step()
 
-    def calculate_scroll_distance(self):
+    def calculate_scroll_distance(self) -> float:
         """
         Calculates the scrollable distance.
         """
@@ -30,7 +30,7 @@ class Scrollbar:
 
         return distance
 
-    def calculate_scroll_step(self):
+    def calculate_scroll_step(self) -> float:
         """
         Calculates the scroll step. That is, by how many vertical points
         we want to move the scroll bar down for each scroll event.
@@ -62,7 +62,7 @@ class Scrollbar:
 
         return scroll_step
     
-    def calculate_height(self):
+    def calculate_height(self) -> float:
         """
         Calculates the scrollbar height. If the maximum scrollable distance
         is zero, then the scrollbar height is zero.
@@ -84,7 +84,7 @@ class Scrollbar:
 
         return scrollbar_height
     
-    def get_scroll_steps(self):
+    def get_scroll_steps(self) -> int:
         """
         Returns the number of scroll steps.
         """
@@ -97,7 +97,7 @@ class Scrollbar:
 
         return num_steps
     
-    def draw(self, e = None):
+    def draw(self, e = None) -> None:
         height = self.calculate_height()
 
         # We don't need to paint a scrollbar.
@@ -148,7 +148,7 @@ class Scrollbar:
         for command in display_list:
             command.execute(self.tab.browser.canvas)
  
-    def scroll_down(self, e):
+    def scroll_down(self) -> None:
         # Check if we have a scrollbar. If not, then don't do anything.
         height = self.calculate_height()
         if height <= 0:
@@ -161,7 +161,7 @@ class Scrollbar:
         else:
             self.scroll += self.scroll_step
 
-    def scroll_up(self, e):
+    def scroll_up(self) -> None:
         # Check if we have a scrollbar. If not, then don't do anything.
         height = self.calculate_height()
         if height <= 0:
