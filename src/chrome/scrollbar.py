@@ -96,13 +96,15 @@ class Scrollbar:
             num_steps = 0
 
         return num_steps
- 
-    def paint(self, e = None):
+    
+    def draw(self, e = None):
         height = self.calculate_height()
 
         # We don't need to paint a scrollbar.
         if height <= 0:
             return
+        
+        display_list = []
 
         y0_lower_limit = self.tab.browser.chrome.bottom
         y0_upper_limit = WINDOW_HEIGHT - height
@@ -141,8 +143,11 @@ class Scrollbar:
         x0, y0 = (WINDOW_WIDTH - self.width, self.y0)
         x1, y1 = (WINDOW_WIDTH, self.y1)
 
-        return DrawRect(Rect(x0, y0, x1, y1), self.color)
+        display_list.extend([DrawRect(Rect(x0, y0, x1, y1), self.color)])
 
+        for command in display_list:
+            command.execute(self.tab.browser.canvas)
+ 
     def scroll_down(self, e):
         # Check if we have a scrollbar. If not, then don't do anything.
         height = self.calculate_height()

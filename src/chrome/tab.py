@@ -10,7 +10,6 @@ class Tab:
         self.scrollbar = None
         self.browser = browser
         self.display_list = []
-        self.scrollbar_display_list = []
         self.url = None
         self.height = WINDOW_HEIGHT - browser.chrome.bottom
 
@@ -52,9 +51,7 @@ class Tab:
 
     def draw(self, e = None):
         # Draw the scrollbar.
-        scroll_cmd = self.scrollbar.paint(e)        
-        if scroll_cmd is not None:
-            scroll_cmd.execute(self.browser.canvas)
+        self.scrollbar.draw(e)
 
         # Draw the web page.
         for command in self.display_list:
