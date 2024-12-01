@@ -1,20 +1,24 @@
-from hypertext.nodes import Element
+from hypertext.nodes import HTMLNode, Element
 
-class TagSelector:
-    def __init__(self, tag):
+class CSSSelector:
+    def __init__(self, priority: int) -> None:
+        self.priority = priority
+
+class TagSelector(CSSSelector):
+    def __init__(self, tag: str) -> None:
+        super().__init__(1)
         self.tag = tag
-        self.priority = 1
 
-    def matches(self, node):
+    def matches(self, node: HTMLNode) -> bool:
         return isinstance(node, Element) and self.tag == node.tag
 
-class DescendantSelector:
-    def __init__(self, ancestor, descendant):
+class DescendantSelector(CSSSelector):
+    def __init__(self, ancestor: CSSSelector, descendant: CSSSelector) -> None:
+        super().__init__(ancestor.priority + descendant.priority)
         self.ancestor = ancestor
         self.descendant = descendant
-        self.priority = ancestor.priority + descendant.priority
     
-    def matches(self, node):
+    def matches(self, node: HTMLNode) -> bool:
         if not self.descendant.matches(node): return False
         while node.parent:
             if self.ancestor.matches(node.parent): return True

@@ -1,7 +1,8 @@
 import os
+from typing import List
 
-from css.parser import CSSParser
-from hypertext.nodes import Element
+from css.parser import CSSParser, CSSRule
+from hypertext.nodes import Element, HTMLNode
 
 INHERITED_PROPERTIES = {
     "font-size": "16px",
@@ -12,12 +13,12 @@ INHERITED_PROPERTIES = {
 
 class StyleComputer:
 
-    def __init__(self, html, url):
+    def __init__(self, html: HTMLNode, url: str) -> None:
         self.html = html
         self.url = url
         self.rules = sorted(self.get_rules(), key=self.cascade_priority)
 
-    def compute_style(self, node):
+    def compute_style(self, node: HTMLNode) -> None:
         node.style = {}
 
         # Apply inherited properties to the node.
@@ -54,18 +55,18 @@ class StyleComputer:
         for child in node.children:
             self.compute_style(child)
     
-    def get_rules(self):
+    def get_rules(self) -> List[CSSRule]:
         rules = self.get_user_agent_rules()
         rules.extend(self.get_linked_stylesheet_rules())
         return rules
     
-    def get_user_agent_rules(self):
+    def get_user_agent_rules(self) -> List[CSSRule]:
         default_stylesheet_path = os.path.join(os.path.dirname(__file__), "browser.css")
         default_stylesheet_content = open(default_stylesheet_path).read()
         rules = CSSParser(default_stylesheet_content).parse().copy()
         return rules
             
-    def get_linked_stylesheet_rules(self):
+    def get_linked_stylesheet_rules(self) -> List[CSSRule]:
         rules = []
         for link in self.get_linked_stylesheets():
             style_url = self.url.resolve(link)
@@ -78,7 +79,7 @@ class StyleComputer:
             rules.extend(CSSParser(body).parse())
         return rules
     
-    def get_linked_stylesheets(self):
+    def get_linked_stylesheets(self) -> List[str]:
         node_list = self.tree_to_list(self.html, [])
         links = []
         for node in node_list:
@@ -89,12 +90,12 @@ class StyleComputer:
                 links.append(node.attributes["href"])
         return links
 
-    def tree_to_list(self, tree, list):
+    def tree_to_list(self, tree: HTMLNode, list: List[HTMLNode]) -> List[HTMLNode]:
         list.append(tree)
         for child in tree.children:
             self.tree_to_list(child, list)
         return list
     
-    def cascade_priority(self, rule):
+    def cascade_priority(self, rule: CSSRule) -> int:
         selector, body = rule
         return selector.priority

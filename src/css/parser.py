@@ -1,16 +1,21 @@
-from .selectors import TagSelector, DescendantSelector
+from typing import Dict, List, Tuple
+
+from css.selectors import CSSSelector, TagSelector, DescendantSelector
+
+CSSDeclarations = Dict[str, str]
+CSSRule = Tuple[CSSSelector, CSSDeclarations]
 
 class CSSParser:
 
-    def __init__(self, s):
+    def __init__(self, s: str) -> None:
         self.s = s
         self.i = 0
 
-    def whitespace(self):
+    def whitespace(self) -> None:
         while self.i < len(self.s) and self.s[self.i].isspace():
             self.i += 1
 
-    def word(self):
+    def word(self) -> str:
         start = self.i
 
         while self.i < len(self.s):
@@ -25,12 +30,12 @@ class CSSParser:
         
         return self.s[start:self.i]
     
-    def literal(self, literal):
+    def literal(self, literal: str) -> None:
         if not (self.i < len(self.s) and self.s[self.i] == literal):
             raise Exception("Parsing error")
         self.i += 1
 
-    def pair(self):
+    def pair(self) -> Tuple[str, str]:
         prop = self.word()
         self.whitespace()
         self.literal(":")
@@ -38,7 +43,7 @@ class CSSParser:
         val = self.word()
         return prop.casefold(), val
     
-    def body(self):
+    def body(self) -> CSSDeclarations:
         pairs = {}
 
         while self.i < len(self.s) and self.s[self.i] != "}":
@@ -58,7 +63,7 @@ class CSSParser:
         
         return pairs
     
-    def selector(self):
+    def selector(self) -> CSSSelector:
         out = TagSelector(self.word().casefold())
         self.whitespace()
         while self.i < len(self.s) and self.s[self.i] != "{":
@@ -68,8 +73,8 @@ class CSSParser:
             self.whitespace()
         return out
 
-    def parse(self):
-        rules = []
+    def parse(self) -> List[CSSRule]:
+        rules: List[CSSRule] = []
         while self.i < len(self.s):
             try:
                 self.whitespace()
@@ -88,7 +93,7 @@ class CSSParser:
                     break
         return rules
 
-    def ignore_until(self, chars): 
+    def ignore_until(self, chars: str) -> str | None: 
         while self.i < len(self.s):
             if self.s[self.i] in chars:
                 return self.s[self.i]
