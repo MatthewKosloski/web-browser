@@ -25,6 +25,8 @@ class Browser:
         self.window.bind("<Down>", self.handle_event_down)
         self.window.bind("<Up>", self.handle_event_up)
         self.window.bind("<Button-1>", self.handle_event_click)
+        self.window.bind("<Key>", self.handle_key)
+        self.window.bind("<Return>", self.handle_enter)
 
     def new_tab(self, url: str) -> None:
         new_tab = Tab(self)
@@ -58,6 +60,17 @@ class Browser:
             # Delegate any other click to the active tab.
             tab_y = e.y - self.chrome.bottom
             self.active_tab.click(e.x, tab_y)
+        self.draw()
+
+    def handle_key(self, e: Event) -> None:
+        # Ignore when no character is typed.
+        if len(e.char) == 0: return
+
+        self.chrome.keypress(e)
+        self.draw()
+
+    def handle_enter(self, e: Event) -> None:
+        self.chrome.enter()
         self.draw()
 
 if __name__ == "__main__":

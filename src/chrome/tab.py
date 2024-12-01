@@ -18,8 +18,10 @@ class Tab:
         self.display_list = []
         self.url = None
         self.height = WINDOW_HEIGHT - browser.chrome.bottom
+        self.history: List[str] = []
 
     def load(self, url: str) -> None:
+        self.history.append(url)
         self.scrollbar = None
         self.display_list = []
         self.url = url
@@ -102,3 +104,9 @@ class Tab:
                 self.load(url)
                 self.draw()
             elt = elt.parent
+
+    def go_back(self) -> None:
+        if len(self.history) > 1:
+            self.history.pop()
+            back = self.history.pop()
+            self.load(back)
