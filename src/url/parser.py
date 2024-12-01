@@ -1,7 +1,9 @@
+from typing import Dict, Optional, Union
+
 class UrlParser:
 
     @staticmethod
-    def parse(url):
+    def parse(url: str) -> Dict[str, Optional[Union[str, int]]]:
         scheme, url = url.split("://", 1)
 
         # # Add "/" suffix.

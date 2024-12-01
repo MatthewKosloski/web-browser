@@ -1,3 +1,4 @@
+from __future__ import annotations
 import socket
 import ssl
 
@@ -14,14 +15,14 @@ class Url:
           - file
     '''
 
-    def __init__(self, url):
+    def __init__(self, url: str) -> None:
         url_parts = UrlParser.parse(url)
         self.host = url_parts["host"]
         self.path = url_parts["path"]
         self.port = url_parts["port"]
         self.scheme = url_parts["scheme"]
 
-    def request(self):
+    def request(self) -> str:
 
         # If the URL is to a file, then try to read the file contents.
         if self.scheme == "file":
@@ -82,7 +83,7 @@ class Url:
 
         return content
     
-    def read_file(self, file_path):
+    def read_file(self, file_path: str) -> str | None:
         try:
             with open(file_path, 'r') as file:
                 content = file.read()
@@ -91,7 +92,7 @@ class Url:
             print(f"Error: File not found at {file_path}")
             return None
         
-    def resolve(self, url):
+    def resolve(self, url: str) -> Url:
         if "://" in url: return Url(url)
         if not url.startswith("/"):
             dir, _ = self.path.rsplit("/", 1)
