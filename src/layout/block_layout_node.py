@@ -117,6 +117,9 @@ class BlockLayoutNode(LayoutNode):
         # Translate CSS "normal" to Tk "roman".
         if style == "normal": style = "roman"
 
+        # Translate CSS "900" to Tk "bold".
+        if weight == "900": weight = "bold"
+
         # Convert CSS pixels to Tk points.
         size = int(float(node.style["font-size"][:-2]) * 0.75)
 
