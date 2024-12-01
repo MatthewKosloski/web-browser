@@ -1,21 +1,21 @@
-import tkinter
-import tkinter.font
+from tkinter import Label
+from tkinter.font import Font
+from typing import Tuple
 
+from hypertext.nodes import Element, Text
+from layout.layout_node import LayoutNode
 from painting.commands import DrawText
 from painting.shapes import Rect
 
-class TextLayoutNode:
+class TextLayoutNode(LayoutNode):
 
     FONTS = {}
 
-    def __init__(self, node, word, parent, previous):
-        self.node = node
+    def __init__(self, node: Element | Text, word: str, parent: LayoutNode, previous: LayoutNode) -> None:
+        super().__init__(node, parent, previous)
         self.word = word
-        self.parent = parent
-        self.previous = previous
-        self.children = []
 
-    def layout(self):
+    def layout(self) -> None:
         weight = self.node.style["font-weight"]
         style = self.node.style["font-style"]
 
@@ -39,19 +39,19 @@ class TextLayoutNode:
 
         self.height = self.font.metrics("linespace")
 
-    def paint(self):
+    def paint(self) -> list:
         color = self.node.style["color"]
         return [DrawText(Rect(self.x, self.y), self.word, self.font, color)]
 
-    def get_font(self, size, weight, style):
+    def get_font(self, size: int, weight: str, style: str) -> Tuple[Font, Label]:
         key = (size, weight, style)
 
         if key not in self.FONTS:
-            font = tkinter.font.Font(size=size, weight=weight, slant=style)
-            label = tkinter.Label(font=font)
+            font = Font(size=size, weight=weight, slant=style)
+            label = Label(font=font)
             self.FONTS[key] = (font, label)
 
         return self.FONTS[key][0]
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "TextLayoutNode('" + self.word + "', " + (''.join([f"{k}:{v}, " for k, v in self.node.style.items()])[:-2]) + ")"

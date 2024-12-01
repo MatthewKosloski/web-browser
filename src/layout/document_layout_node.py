@@ -1,18 +1,13 @@
-from .block_layout_node import BlockLayoutNode
 from constants import WINDOW_WIDTH, HORIZONTAL_STEP, VERTICAL_STEP
+from hypertext.nodes import Element
+from layout.block_layout_node import BlockLayoutNode
+from layout.layout_node import LayoutNode
 
-class DocumentLayoutNode:
-    def __init__(self, node):
-        self.node = node
+class DocumentLayoutNode(LayoutNode):
+    def __init__(self, node: Element) -> None:
+        super().__init__(node, None, None)
 
-        self.parent = None
-        self.children = []
-        self.x = None
-        self.y = None
-        self.width = None
-        self.height = None
-
-    def layout(self):
+    def layout(self) -> None:
         self.width = WINDOW_WIDTH - 2 * HORIZONTAL_STEP
         self.x = HORIZONTAL_STEP
         self.y = VERTICAL_STEP
@@ -23,8 +18,8 @@ class DocumentLayoutNode:
 
         self.height = child.height
 
-    def paint(self):
+    def paint(self) -> list:
         return []
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "DocumentLayoutNode"

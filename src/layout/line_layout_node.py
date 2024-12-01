@@ -1,14 +1,16 @@
-class LineLayoutNode:
+from __future__ import annotations
+
+from hypertext.nodes import Element, Text
+from layout.layout_node import LayoutNode
+
+class LineLayoutNode(LayoutNode):
 
     LEADING = 1.25
 
-    def __init__(self, node, parent, previous):
-        self.node = node
-        self.parent = parent
-        self.previous = previous
-        self.children = []
+    def __init__(self, node: Element | Text, parent: LayoutNode, previous: LayoutNode) -> None:
+        super().__init__(node, parent, previous)
 
-    def layout(self):
+    def layout(self) -> None:
         # To compute a line's x position, the x position of its parent node
         # must already have been computed. So a line's x must therefore be
         # computed before its children's x.
@@ -40,8 +42,8 @@ class LineLayoutNode:
 
         self.height = self.LEADING * (max_ascent + max_descent)
 
-    def paint(self):
+    def paint(self) -> list:
         return []
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "LineLayoutNode"

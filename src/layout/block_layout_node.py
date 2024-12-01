@@ -1,14 +1,18 @@
-import tkinter
-import tkinter.font
+from __future__ import annotations
 
-from .line_layout_node import LineLayoutNode
-from .text_layout_node import TextLayoutNode
+from typing import Tuple
+from tkinter import Label
+from tkinter.font import Font
+
 from constants import VERTICAL_STEP
 from hypertext.nodes import Element, Text
+from layout.layout_node import LayoutNode
+from layout.line_layout_node import LineLayoutNode
+from layout.text_layout_node import TextLayoutNode
 from painting.commands import DrawRect
 from painting.shapes import Rect
 
-class BlockLayoutNode:
+class BlockLayoutNode(LayoutNode):
 
     LEADING = 1.25
     FONTS = {}
@@ -21,17 +25,10 @@ class BlockLayoutNode:
         "legend", "details", "summary"
     ]
 
-    def __init__(self, node, parent, previous):
-        self.node = node
-        self.parent = parent
-        self.previous = previous
-        self.children = []
-        self.x = None
-        self.y = None
-        self.width = None
-        self.height = None
+    def __init__(self, node: Element | Text, parent: LayoutNode, previous: LayoutNode) -> None:
+        super().__init__(node, parent, previous)
 
-    def paint(self):
+    def paint(self) -> list:
         commands = []
 
         if isinstance(self.node, Element) and self.node.tag == "pre":
@@ -45,7 +42,7 @@ class BlockLayoutNode:
 
         return commands
 
-    def layout(self):
+    def layout(self) -> None:
         # To compute a block's x position, the x position of its parent block
         # must already have been computed. So a block's x must therefore be
         # computed before its children's x.
@@ -90,7 +87,7 @@ class BlockLayoutNode:
         # we need to compute the height after laying out the children.
         self.height = sum([child.height for child in self.children])
 
-    def layout_mode(self):
+    def layout_mode(self) -> str:
         if isinstance(self.node, Text):
             return "inline"
         elif any([isinstance(child, Element) and \
@@ -102,7 +99,7 @@ class BlockLayoutNode:
         else:
             return "block"
 
-    def recurse(self, node):
+    def recurse(self, node: Element | Text) -> None:
         if isinstance(node, Text):
             for word in node.text.split():
                 self.word(node, word)
@@ -113,7 +110,7 @@ class BlockLayoutNode:
                 # Add a gap between paragraphs.
                 self.cursor_y += VERTICAL_STEP
 
-    def word(self, node, word):
+    def word(self, node: Text, word: str) -> None:
         weight = node.style["font-weight"]
         style = node.style["font-style"]
 
@@ -138,22 +135,22 @@ class BlockLayoutNode:
         # " " adds back the whitespace that was removed when splitting the text.
         self.cursor_x += w + font.measure(" ")
 
-    def new_line(self):
+    def new_line(self) -> None:
         self.cursor_x = 0
         last_line = self.children[-1] if self.children else None
         new_line = LineLayoutNode(self.node, self, last_line)
         self.children.append(new_line)
 
-    def get_font(self, size, weight, style):
+    def get_font(self, size: int, weight: str, style: str) -> Tuple[Font, Label]:
         key = (size, weight, style)
 
         if key not in self.FONTS:
-            font = tkinter.font.Font(size=size, weight=weight, slant=style)
-            label = tkinter.Label(font=font)
+            font = Font(size=size, weight=weight, slant=style)
+            label = Label(font=font)
             self.FONTS[key] = (font, label)
 
         return self.FONTS[key][0]
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "BlockLayoutNode('" + self.node.tag + "', " + (''.join([f"{k}:{v}, " for k, v in self.node.style.items()])[:-2]) + ")"
     
