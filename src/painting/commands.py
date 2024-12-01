@@ -71,3 +71,5 @@ class DrawLine:
     
     def __repr__(self) -> str:
         return f"DrawLine(({self.x1}, {self.y1}), ({self.x2}, {self.y2}), {self.color}, {self.thickness})"
+    
+DrawCommand = DrawRect | DrawText | DrawOutline | DrawLine
