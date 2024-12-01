@@ -3,7 +3,9 @@ from constants import WINDOW_HEIGHT
 from css.style_computer import StyleComputer
 from hypertext.nodes import Text
 from hypertext.parser import HTMLParser
+from hypertext.utils import log_tree as log_html_tree
 from layout.document_layout_node import DocumentLayoutNode
+from layout.utils import log_tree as log_layout_tree, tree_to_list
 
 class Tab:
     def __init__(self, browser):
@@ -25,7 +27,7 @@ class Tab:
         nodes = HTMLParser(body).parse()
         
         print("HTML tree:")
-        self.log_tree(nodes)
+        log_html_tree(nodes)
 
         # Apply user agent, linked style sheet, and inline style rules
         # to each element.
@@ -37,7 +39,7 @@ class Tab:
         self.document.layout()
 
         print("Layout tree:")
-        self.log_tree(self.document)
+        log_layout_tree(self.document)
 
         # Create a scrollbar.
         self.scrollbar = Scrollbar(self)
@@ -78,7 +80,7 @@ class Tab:
         y += self.scrollbar.scroll
 
         # Perform a hit test. Get the list of layout objects that have been clicked.
-        tree = self.tree_to_list(self.document, [])
+        tree = tree_to_list(self.document, [])
         objs = [obj for obj in tree
             if obj.x <= x < obj.x + obj.width
             and obj.y <= y < obj.y + obj.height]
@@ -98,14 +100,3 @@ class Tab:
                 self.load(url)
                 self.draw()
             elt = elt.parent
-
-    def tree_to_list(self, tree, list):
-        list.append(tree)
-        for child in tree.children:
-            self.tree_to_list(child, list)
-        return list
-
-    def log_tree(self, node, indent=0):
-        print(" " * indent, node)
-        for child in node.children:
-            self.log_tree(child, indent + 4)
