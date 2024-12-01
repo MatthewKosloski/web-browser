@@ -5,7 +5,7 @@ from tkinter import Label
 from tkinter.font import Font
 
 from constants import VERTICAL_STEP
-from hypertext.nodes import Element, Text
+from hypertext.nodes import Element, Text, HTMLNode
 from layout.layout_node import LayoutNode
 from layout.line_layout_node import LineLayoutNode
 from layout.text_layout_node import TextLayoutNode
@@ -25,7 +25,7 @@ class BlockLayoutNode(LayoutNode):
         "legend", "details", "summary"
     ]
 
-    def __init__(self, node: Element | Text, parent: LayoutNode, previous: LayoutNode) -> None:
+    def __init__(self, node: HTMLNode, parent: LayoutNode, previous: LayoutNode) -> None:
         super().__init__(node, parent, previous)
 
     def paint(self) -> list:
@@ -99,7 +99,7 @@ class BlockLayoutNode(LayoutNode):
         else:
             return "block"
 
-    def recurse(self, node: Element | Text) -> None:
+    def recurse(self, node: HTMLNode) -> None:
         if isinstance(node, Text):
             for word in node.text.split():
                 self.word(node, word)

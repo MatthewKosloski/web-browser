@@ -2,7 +2,7 @@ from tkinter import Label
 from tkinter.font import Font
 from typing import Tuple
 
-from hypertext.nodes import Element, Text
+from hypertext.nodes import HTMLNode
 from layout.layout_node import LayoutNode
 from painting.commands import DrawText
 from painting.shapes import Rect
@@ -11,7 +11,7 @@ class TextLayoutNode(LayoutNode):
 
     FONTS = {}
 
-    def __init__(self, node: Element | Text, word: str, parent: LayoutNode, previous: LayoutNode) -> None:
+    def __init__(self, node: HTMLNode, word: str, parent: LayoutNode, previous: LayoutNode) -> None:
         super().__init__(node, parent, previous)
         self.word = word
 

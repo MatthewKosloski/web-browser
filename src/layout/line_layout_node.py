@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from hypertext.nodes import Element, Text
+from hypertext.nodes import HTMLNode
 from layout.layout_node import LayoutNode
 
 class LineLayoutNode(LayoutNode):
 
     LEADING = 1.25
 
-    def __init__(self, node: Element | Text, parent: LayoutNode, previous: LayoutNode) -> None:
+    def __init__(self, node: HTMLNode, parent: LayoutNode, previous: LayoutNode) -> None:
         super().__init__(node, parent, previous)
 
     def layout(self) -> None:

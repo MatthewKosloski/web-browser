@@ -1,4 +1,5 @@
-from .nodes import Element, Text
+from hypertext.nodes import Element, Text, HTMLNode
+from typing import List, Dict, Tuple
 
 class HTMLParser:
 
@@ -12,11 +13,11 @@ class HTMLParser:
         "link", "meta", "title", "style", "script",
     ]
 
-    def __init__(self, body):
+    def __init__(self, body: str) -> None:
         self.body = body
-        self.unfinished = []
+        self.unfinished: List[HTMLNode] = []
 
-    def parse(self):
+    def parse(self) -> HTMLNode:
         text = ""
         in_tag = False
         for c in self.body:
@@ -34,7 +35,7 @@ class HTMLParser:
             self.add_text(text)
         return self.finish()
     
-    def add_text(self, text):
+    def add_text(self, text: str) -> None:
 
         # Skip whitespace-only text nodes. Note: real browsers
         # don't do this -- they retain whitespace.
@@ -46,7 +47,7 @@ class HTMLParser:
         node = Text(text, parent)
         parent.children.append(node)
 
-    def add_tag(self, tag):
+    def add_tag(self, tag: str) -> None:
 
         tag, attributes = self.get_attributes(tag)
 
@@ -77,7 +78,7 @@ class HTMLParser:
             node = Element(tag, attributes, parent)
             self.unfinished.append(node)
 
-    def finish(self):
+    def finish(self) -> HTMLNode:
         if not self.unfinished:
             self.implicit_tags(None)
 
@@ -87,7 +88,7 @@ class HTMLParser:
             parent.children.append(node)
         return self.unfinished.pop()
     
-    def implicit_tags(self, tag):
+    def implicit_tags(self, tag: str) -> None:
         while True:
             open_tags = [node.tag for node in self.unfinished]
 
@@ -108,7 +109,7 @@ class HTMLParser:
             else:
                 break
     
-    def get_attributes(self, text):
+    def get_attributes(self, text: str) -> Tuple[str, Dict[str, str]]:
         parts = text.split()
         tag = parts[0].casefold()
         attributes = {}

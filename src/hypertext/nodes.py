@@ -1,18 +1,24 @@
-class Element:
-    def __init__(self, tag, attributes, parent):
+from __future__ import annotations
+from typing import List
+
+class HTMLNode:
+    def __init__(self, parent: HTMLNode) -> None:
+        self.parent = parent
+        self.children: list[HTMLNode] = []
+
+class Element(HTMLNode):
+    def __init__(self, tag: str, attributes, parent: HTMLNode):
+        super().__init__(parent)
         self.tag = tag
         self.attributes = attributes
-        self.parent = parent
-        self.children = []
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<" + self.tag + ">"
     
-class Text:
-    def __init__(self, text, parent):
+class Text(HTMLNode):
+    def __init__(self, text, parent: HTMLNode):
+        super().__init__(parent)
         self.text = text
-        self.children = []
-        self.parent = parent
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return repr(self.text)
