@@ -1,10 +1,11 @@
 from __future__ import annotations
+
 from typing import List
 
 class HTMLNode:
     def __init__(self, parent: HTMLNode) -> None:
         self.parent = parent
-        self.children: list[HTMLNode] = []
+        self.children: List[HTMLNode] = []
 
 class Element(HTMLNode):
     def __init__(self, tag: str, attributes, parent: HTMLNode):
