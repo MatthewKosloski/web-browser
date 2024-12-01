@@ -1,4 +1,6 @@
 import tkinter
+from tkinter import Canvas, Event
+from typing import Optional
 
 from chrome.chrome import Chrome
 from chrome.tab import Tab
@@ -7,11 +9,11 @@ from url.url import Url
 
 class Browser:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.tabs = []
         self.active_tab = None
         self.window = tkinter.Tk()
-        self.canvas = tkinter.Canvas(
+        self.canvas = Canvas(
             self.window,
             width=WINDOW_WIDTH,
             height=WINDOW_HEIGHT,
@@ -24,14 +26,14 @@ class Browser:
         self.window.bind("<Up>", self.handle_event_up)
         self.window.bind("<Button-1>", self.handle_event_click)
 
-    def new_tab(self, url):
+    def new_tab(self, url: str) -> None:
         new_tab = Tab(self)
         new_tab.load(url)
         self.active_tab = new_tab
         self.tabs.append(new_tab)
         self.draw()
 
-    def draw(self, e = None):
+    def draw(self, e = Optional[Event]) -> None:
         self.canvas.delete("all")
         self.active_tab.draw(e)
 
@@ -40,15 +42,15 @@ class Browser:
         for cmd in self.chrome.paint():
             cmd.execute(self.canvas, 0)
 
-    def handle_event_down(self, e):
+    def handle_event_down(self, e: Event) -> None:
         self.active_tab.scroll_down(e)
         self.draw(e)
 
-    def handle_event_up(self, e):
+    def handle_event_up(self, e: Event) -> None:
         self.active_tab.scroll_up(e)
         self.draw(e)
 
-    def handle_event_click(self, e):
+    def handle_event_click(self, e: Event) -> None:
         if e.y < self.chrome.bottom:
             # Delegate clicks on the browser chrome to the Chrome object.
             self.chrome.click(e.x, e.y)
