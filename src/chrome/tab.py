@@ -1,3 +1,6 @@
+from tkinter import Event
+from typing import List, Optional
+
 from chrome.scrollbar import Scrollbar
 from constants import WINDOW_HEIGHT
 from css.style_computer import StyleComputer
@@ -5,17 +8,18 @@ from hypertext.nodes import Text
 from hypertext.parser import HTMLParser
 from hypertext.utils import log_tree as log_html_tree
 from layout.document_layout_node import DocumentLayoutNode
+from layout.layout_node import LayoutNode
 from layout.utils import log_tree as log_layout_tree, tree_to_list
 
 class Tab:
-    def __init__(self, browser):
+    def __init__(self, browser) -> None:
         self.scrollbar = None
         self.browser = browser
         self.display_list = []
         self.url = None
         self.height = WINDOW_HEIGHT - browser.chrome.bottom
 
-    def load(self, url):
+    def load(self, url: str) -> None:
         self.scrollbar = None
         self.display_list = []
         self.url = url
@@ -51,7 +55,7 @@ class Tab:
         for command in self.display_list:
             print(command)
 
-    def draw(self, e = None):
+    def draw(self, e = Optional[Event]) -> None:
         # Draw the scrollbar.
         self.scrollbar.draw(e)
 
@@ -61,21 +65,19 @@ class Tab:
             if command.rect.bottom < self.scrollbar.scroll: continue
             command.execute(self.browser.canvas, self.scrollbar.scroll - self.browser.chrome.bottom)
 
-    def paint(self, layout_object, display_list):
+    def paint(self, layout_object: LayoutNode, display_list: List[LayoutNode]) -> None:
         self.display_list.extend(layout_object.paint())
 
         for child in layout_object.children:
             self.paint(child, display_list)
 
-    def scroll_down(self, e = None):
-        if self.scrollbar is not None:
-            self.scrollbar.scroll_down(e)
+    def scroll_down(self, e = Event) -> None:
+        self.scrollbar.scroll_down(e)
 
-    def scroll_up(self, e = None):
-        if self.scrollbar is not None:
-            self.scrollbar.scroll_up(e)
+    def scroll_up(self, e = Event) -> None:
+        self.scrollbar.scroll_up(e)
 
-    def click(self, x, y):
+    def click(self, x: int, y: int) -> None:
         # Convert the screen coordinates to page coordinates.
         y += self.scrollbar.scroll
 
