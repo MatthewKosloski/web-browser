@@ -1,7 +1,9 @@
-import tkinter
+from tkinter import Label
+from tkinter.font import Font
+from typing import List, Tuple
 
 from constants import WINDOW_WIDTH
-from painting.commands import DrawLine, DrawOutline, DrawRect, DrawText
+from painting.commands import DrawCommand, DrawLine, DrawOutline, DrawRect, DrawText
 from painting.shapes import Rect
 from url.url import Url
 
@@ -23,15 +25,15 @@ class Chrome:
             self.padding + self.font_height)
         self.bottom = self.tabbar_bottom
         
-    def tab_rect(self, i):
+    def tab_rect(self, i: int) -> Rect:
         tabs_start = self.newtab_rect.right + self.padding
         tab_width = self.font.measure("Tab X") + 2 * self.padding
         return Rect(
             tabs_start + tab_width * i, self.tabbar_top,
             tabs_start + tab_width * (i + 1), self.tabbar_bottom)
     
-    def paint(self):
-        cmds = []
+    def paint(self) -> List[DrawCommand]:
+        cmds: List[DrawCommand] = []
         
         # Make sure the chrome is always drawn on top of the page contents.
         # To guarantee that, we can draw a white rectangle behind the chrome.
@@ -72,7 +74,7 @@ class Chrome:
                     "black", 1))
         return cmds
 
-    def click(self, x, y):
+    def click(self, x: int, y: int) -> None:
         if self.newtab_rect.containsPoint(x, y):
             self.browser.new_tab(Url("https://browser.engineering/"))
         else:
@@ -81,12 +83,12 @@ class Chrome:
                     self.browser.active_tab = tab
                     break
 
-    def get_font(self, size, weight, style):
+    def get_font(self, size: int, weight: str, style: str) -> Tuple[Font, Label]:
         key = (size, weight, style)
 
         if key not in self.FONTS:
-            font = tkinter.font.Font(size=size, weight=weight, slant=style)
-            label = tkinter.Label(font=font)
+            font = Font(size=size, weight=weight, slant=style)
+            label = Label(font=font)
             self.FONTS[key] = (font, label)
 
         return self.FONTS[key][0]
