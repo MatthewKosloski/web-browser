@@ -33,7 +33,7 @@ class Browser:
         self.tabs.append(new_tab)
         self.draw()
 
-    def draw(self, e = Optional[Event]) -> None:
+    def draw(self, e: Optional[Event] = None) -> None:
         self.canvas.delete("all")
         self.active_tab.draw(e)
 
@@ -43,11 +43,11 @@ class Browser:
             cmd.execute(self.canvas, 0)
 
     def handle_event_down(self, e: Event) -> None:
-        self.active_tab.scroll_down(e)
+        self.active_tab.scroll_down()
         self.draw(e)
 
     def handle_event_up(self, e: Event) -> None:
-        self.active_tab.scroll_up(e)
+        self.active_tab.scroll_up()
         self.draw(e)
 
     def handle_event_click(self, e: Event) -> None:

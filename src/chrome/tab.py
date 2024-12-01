@@ -55,7 +55,7 @@ class Tab:
         for command in self.display_list:
             print(command)
 
-    def draw(self, e = Optional[Event]) -> None:
+    def draw(self, e: Optional[Event] = None) -> None:
         # Draw the scrollbar.
         self.scrollbar.draw(e)
 
@@ -71,11 +71,11 @@ class Tab:
         for child in layout_object.children:
             self.paint(child, display_list)
 
-    def scroll_down(self, e = Event) -> None:
-        self.scrollbar.scroll_down(e)
+    def scroll_down(self) -> None:
+        self.scrollbar.scroll_down()
 
-    def scroll_up(self, e = Event) -> None:
-        self.scrollbar.scroll_up(e)
+    def scroll_up(self) -> None:
+        self.scrollbar.scroll_up()
 
     def click(self, x: int, y: int) -> None:
         # Convert the screen coordinates to page coordinates.

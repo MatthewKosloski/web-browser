@@ -1,4 +1,6 @@
 import math
+from tkinter import Event
+from typing import Optional
 
 from constants import VERTICAL_STEP, WINDOW_WIDTH, WINDOW_HEIGHT
 from painting.commands import DrawRect
@@ -97,7 +99,7 @@ class Scrollbar:
 
         return num_steps
     
-    def draw(self, e = None) -> None:
+    def draw(self, e: Optional[Event] = None) -> None:
         height = self.calculate_height()
 
         # We don't need to paint a scrollbar.
