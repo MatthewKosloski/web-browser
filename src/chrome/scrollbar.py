@@ -1,5 +1,5 @@
 import math
-from tkinter import Event
+from tkinter import Event, EventType
 from typing import Optional
 
 from constants import VERTICAL_STEP, WINDOW_WIDTH, WINDOW_HEIGHT
@@ -116,18 +116,26 @@ class Scrollbar:
         scroll_steps = self.get_scroll_steps()
         step = (self.tab.height - height) / scroll_steps
 
+        is_scroll_down_event = e is not None \
+            and (e.type == EventType.MouseWheel and e.delta < 0 \
+            or (e.type == EventType.KeyPress and e.keysym == "Down"))
+        
+        is_scroll_up_event = e is not None \
+            and (e.type == EventType.MouseWheel and e.delta >= 0 \
+            or (e.type == EventType.KeyPress and e.keysym == "Up"))
+
         if self.y0 is None:
             self.y0 = y0_lower_limit
-        elif e is not None and e.keysym == "Down":
+        elif is_scroll_down_event:
             self.y0 += step
-        elif e is not None and e.keysym == "Up":
+        elif is_scroll_up_event:
             self.y0 -= step
 
         if self.y1 is None:
             self.y1 = y1_lower_limit
-        elif e is not None and e.keysym == "Down":
+        elif is_scroll_down_event:
             self.y1 += step
-        elif e is not None and e.keysym == "Up":
+        elif is_scroll_up_event:
             self.y1 -= step
 
         # Prevent y0 from exiting window boundary.

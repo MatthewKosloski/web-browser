@@ -27,6 +27,7 @@ class Browser:
         self.window.bind("<Button-1>", self.handle_event_click)
         self.window.bind("<Key>", self.handle_key)
         self.window.bind("<Return>", self.handle_enter)
+        self.window.bind("<MouseWheel>", self.handle_scroll)
 
     def new_tab(self, url: str) -> None:
         new_tab = Tab(self)
@@ -72,6 +73,13 @@ class Browser:
     def handle_enter(self, e: Event) -> None:
         self.chrome.enter()
         self.draw()
+
+    def handle_scroll(self, e: Event) -> None:
+        if e.delta > 0:
+            self.active_tab.scroll_up()
+        else:
+            self.active_tab.scroll_down()
+        self.draw(e)
 
 if __name__ == "__main__":
     import sys
