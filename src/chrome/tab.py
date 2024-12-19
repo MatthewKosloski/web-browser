@@ -9,6 +9,7 @@ from css.style_computer import StyleComputer
 from hypertext.nodes import Element, Text, HTMLNode
 from hypertext.parser import HTMLParser
 from hypertext.utils import log_tree as log_html_tree
+from javascript.JSContext import JSContext
 from layout.document_layout_node import DocumentLayoutNode
 from layout.layout_node import LayoutNode
 from layout.utils import log_tree as log_layout_tree, tree_to_list
@@ -25,12 +26,16 @@ class Tab:
         self.nodes = None
         self.style_computer = None
         self.focus = None
+        self.js = None
 
     def load(self, url: Url, payload: Optional[str] = None) -> None:
         self.history.append(url)
         self.scrollbar = None
         self.display_list = []
         self.url = url
+
+        # Initialize the JavaScript execution environment.
+        self.js = JSContext()
 
         # Get HTML document, either from disk or the internet.
         body = url.request(payload)
@@ -43,6 +48,21 @@ class Tab:
 
         # Download stylesheets and initialize style computer.
         self.style_computer = StyleComputer(self.nodes, self.url)
+
+        scripts = [node.attributes["src"] for node
+            in tree_to_list(self.nodes, [])
+            if isinstance(node, Element)
+            and node.tag == "script"
+            and "src" in node.attributes]
+        
+        for script in scripts:
+            script_url = url.resolve(script)
+            try:
+                body = script_url.request()
+            except:
+                continue
+
+            self.js.run(body)
 
         self.render()
 

@@ -24,7 +24,7 @@ class Url:
         self.port = url_parts["port"]
         self.scheme = url_parts["scheme"]
 
-    def request(self, payload: Optional[str]) -> str:
+    def request(self, payload: Optional[str] = None) -> str:
 
         # If the URL is to a file, then try to read the file contents.
         if self.scheme == "file":
