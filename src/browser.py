@@ -20,6 +20,7 @@ class Browser:
             bg="white")
         self.canvas.pack()
         self.chrome = Chrome(self)
+        self.focus = None
 
         # Bind events to event handlers.
         self.window.bind("<Down>", self.handle_event_down)
@@ -29,7 +30,7 @@ class Browser:
         self.window.bind("<Return>", self.handle_enter)
         self.window.bind("<MouseWheel>", self.handle_scroll)
 
-    def new_tab(self, url: str) -> None:
+    def new_tab(self, url: Url) -> None:
         new_tab = Tab(self)
         new_tab.load(url)
         self.active_tab = new_tab
@@ -56,19 +57,34 @@ class Browser:
     def handle_event_click(self, e: Event) -> None:
         if e.y < self.chrome.bottom:
             # Delegate clicks on the browser chrome to the Chrome object.
+            
+            # Blur the browser to remember that the user is interacting with
+            # the browser chrome, not the page.
+            self.blur()
             self.chrome.click(e.x, e.y)
-        else:
+        else:            
+            # Set focus to remember that the user is interacting with
+            # the page, not the browser chrome.
+            self.focus = "content"
+            self.chrome.blur()
+            
             # Delegate any other click to the active tab.
             tab_y = e.y - self.chrome.bottom
             self.active_tab.click(e.x, tab_y)
         self.draw()
 
+    def blur(self) -> None:
+        self.focus = None
+
     def handle_key(self, e: Event) -> None:
         # Ignore when no character is typed.
         if len(e.char) == 0: return
 
-        self.chrome.keypress(e)
-        self.draw()
+        if self.chrome.keypress(e):
+            self.draw()
+        elif self.focus == "content":
+            self.active_tab.keypress(e.char)
+            self.draw()
 
     def handle_enter(self, e: Event) -> None:
         self.chrome.enter()

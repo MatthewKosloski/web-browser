@@ -4,8 +4,9 @@ from typing import Tuple
 from tkinter import Label
 from tkinter.font import Font
 
-from constants import VERTICAL_STEP
+from constants import VERTICAL_STEP, INPUT_WIDTH_PX
 from hypertext.nodes import Element, Text, HTMLNode
+from layout.input_layout_node import InputLayoutNode
 from layout.layout_node import LayoutNode
 from layout.line_layout_node import LineLayoutNode
 from layout.text_layout_node import TextLayoutNode
@@ -27,6 +28,10 @@ class BlockLayoutNode(LayoutNode):
 
     def __init__(self, node: HTMLNode, parent: LayoutNode, previous: LayoutNode) -> None:
         super().__init__(node, parent, previous)
+
+    def should_paint(self) -> bool:
+        return isinstance(self.node, Text) \
+            or (self.node.tag != "input" and self.node.tag != "button")
 
     def paint(self) -> list:
         commands = []
@@ -93,22 +98,34 @@ class BlockLayoutNode(LayoutNode):
         elif any([isinstance(child, Element) and \
                 child.tag in self.BLOCK_ELEMENTS
                 for child in self.node.children]):
+            # There is at least one child that is a block element.
             return "block"
         elif self.node.children:
+            # There are zero children that are block elements.
+            return "inline"
+        elif self.node.tag == "input":
+            # Inputs don't have children, but they should have inline layout.
             return "inline"
         else:
+            # The node doesn't have any children; assume block element.
             return "block"
 
     def recurse(self, node: HTMLNode) -> None:
+        if isinstance(node, Element) and node.tag in self.BLOCK_ELEMENTS:
+            # Add a gap between paragraphs.
+            self.cursor_y += VERTICAL_STEP
+
         if isinstance(node, Text):
             for word in node.text.split():
                 self.word(node, word)
         else:
-            for child in node.children:
-                self.recurse(child)
-            if node.tag in self.BLOCK_ELEMENTS:
-                # Add a gap between paragraphs.
-                self.cursor_y += VERTICAL_STEP
+            if node.tag == "br":
+                self.new_line()
+            elif node.tag == "input" or node.tag == "button":
+                self.input(node)
+            else:
+                for child in node.children:
+                    self.recurse(child)
 
     def word(self, node: Text, word: str) -> None:
         weight = node.style["font-weight"]
@@ -134,6 +151,35 @@ class BlockLayoutNode(LayoutNode):
         previous_word = line.children[-1] if line.children else None
         text = TextLayoutNode(node, word, line, previous_word)
         line.children.append(text)
+
+        # " " adds back the whitespace that was removed when splitting the text.
+        self.cursor_x += w + font.measure(" ")
+
+    def input(self, node: Text) -> None:
+        w = INPUT_WIDTH_PX
+
+        weight = node.style["font-weight"]
+        style = node.style["font-style"]
+
+        # Translate CSS "normal" to Tk "roman".
+        if style == "normal": style = "roman"
+
+        # Translate CSS "900" to Tk "bold".
+        if weight == "900": weight = "bold"
+
+        # Convert CSS pixels to Tk points.
+        size = int(float(node.style["font-size"][:-2]) * 0.75)
+
+        font = self.get_font(size, weight, style)
+
+        if self.cursor_x + w > self.width:
+            # Wrap text to next line.
+            self.new_line()
+        
+        line = self.children[-1]
+        previous_word = line.children[-1] if line.children else None
+        input = InputLayoutNode(node, line, previous_word)
+        line.children.append(input)
 
         # " " adds back the whitespace that was removed when splitting the text.
         self.cursor_x += w + font.measure(" ")

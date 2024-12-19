@@ -1,15 +1,18 @@
+from urllib import parse
+
 from tkinter import Event
 from typing import List, Optional
 
 from chrome.scrollbar import Scrollbar
 from constants import WINDOW_HEIGHT
 from css.style_computer import StyleComputer
-from hypertext.nodes import Text
+from hypertext.nodes import Element, Text, HTMLNode
 from hypertext.parser import HTMLParser
 from hypertext.utils import log_tree as log_html_tree
 from layout.document_layout_node import DocumentLayoutNode
 from layout.layout_node import LayoutNode
 from layout.utils import log_tree as log_layout_tree, tree_to_list
+from url.url import Url
 
 class Tab:
     def __init__(self, browser) -> None:
@@ -19,29 +22,43 @@ class Tab:
         self.url = None
         self.height = WINDOW_HEIGHT - browser.chrome.bottom
         self.history: List[str] = []
+        self.nodes = None
+        self.style_computer = None
+        self.focus = None
 
-    def load(self, url: str) -> None:
+    def load(self, url: Url, payload: Optional[str] = None) -> None:
         self.history.append(url)
         self.scrollbar = None
         self.display_list = []
         self.url = url
 
         # Get HTML document, either from disk or the internet.
-        body = url.request()
+        body = url.request(payload)
 
         # Parse the HTML document, returning a tree of nodes.
-        nodes = HTMLParser(body).parse()
+        self.nodes = HTMLParser(body).parse()
         
         print("HTML tree:")
-        log_html_tree(nodes)
+        log_html_tree(self.nodes)
+
+        # Download stylesheets and initialize style computer.
+        self.style_computer = StyleComputer(self.nodes, self.url)
+
+        self.render()
+
+    def render(self) -> None:
+        '''
+        Recompute style and layout, reinitialize scrollbar, and paint.
+        '''
+
+        self.display_list = []
 
         # Apply user agent, linked style sheet, and inline style rules
         # to each element.
-        style_computer = StyleComputer(nodes, url)
-        style_computer.compute_style(nodes)
+        self.style_computer.compute_style(self.nodes)
 
         # From the HTML tree, produce a layout tree with a root DocumentLayoutNode.
-        self.document = DocumentLayoutNode(nodes)
+        self.document = DocumentLayoutNode(self.nodes)
         self.document.layout()
 
         print("Layout tree:")
@@ -68,7 +85,8 @@ class Tab:
             command.execute(self.browser.canvas, self.scrollbar.scroll - self.browser.chrome.bottom)
 
     def paint(self, layout_object: LayoutNode, display_list: List[LayoutNode]) -> None:
-        self.display_list.extend(layout_object.paint())
+        if layout_object.should_paint():
+            self.display_list.extend(layout_object.paint())
 
         for child in layout_object.children:
             self.paint(child, display_list)
@@ -80,6 +98,9 @@ class Tab:
         self.scrollbar.scroll_up()
 
     def click(self, x: int, y: int) -> None:
+        # Blur the tab.
+        self.focus = None
+
         # Convert the screen coordinates to page coordinates.
         y += self.scrollbar.scroll
 
@@ -103,10 +124,52 @@ class Tab:
                 url = self.url.resolve(elt.attributes["href"])
                 self.load(url)
                 self.draw()
+            elif elt.tag == "input":
+                elt.attributes["value"] = ""
+                if self.focus:
+                    self.focus.is_focused = False
+                self.focus = elt
+                elt.is_focused = True
+                self.render()
+            elif elt.tag == "button":
+                # Find the nearest parent form and submit it.
+                while elt:
+                    if elt.tag == "form" and "action" in elt.attributes:
+                        return self.submit_form(elt)
+                    elt = elt.parent
             elt = elt.parent
+
+    def submit_form(self, elt: HTMLNode) -> None:
+        # Get all inputs of the form.
+        inputs = [node for node in tree_to_list(elt, [])
+            if isinstance(node, Element)
+            and node.tag == "input"
+            and "name" in node.attributes]
+        body = ""
+
+        for input in inputs:
+            name = input.attributes["name"]
+            value = input.attributes.get("value", "")
+
+            # Percent encode name and value, replacing all special characters
+            # with a percent sign followed by those characters' hex codes.
+            name = parse.quote(name)
+            value = parse.quote(value)
+            body += "&" + name + "=" + value
+        
+        # Remove the extra &.
+        body = body[1:]
+
+        url = self.url.resolve(elt.attributes["action"])
+        self.load(url, body)
 
     def go_back(self) -> None:
         if len(self.history) > 1:
             self.history.pop()
             back = self.history.pop()
             self.load(back)
+
+    def keypress(self, char: str) -> None:
+        if self.focus:
+            self.focus.attributes["value"] += char
+            self.render()

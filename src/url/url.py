@@ -1,4 +1,6 @@
 from __future__ import annotations
+from typing import Optional
+
 import socket
 import ssl
 
@@ -22,7 +24,7 @@ class Url:
         self.port = url_parts["port"]
         self.scheme = url_parts["scheme"]
 
-    def request(self) -> str:
+    def request(self, payload: Optional[str]) -> str:
 
         # If the URL is to a file, then try to read the file contents.
         if self.scheme == "file":
@@ -44,15 +46,26 @@ class Url:
 
         s.connect((self.host, self.port))
 
+        method = "POST" if payload else "GET"
+
         # It's important to use \r\n instead of \n.
-        request = "GET {} HTTP/1.0\r\n".format(self.path)
+        request = "{} {} HTTP/1.0\r\n".format(method, self.path)
 
         # It's important to put two newlines at the end,
         # otherwise the server will keep waiting for that
         # newline, and we'll keep waiting on its response.
         request += "Host: {}\r\n".format(self.host)
         request += "User-Agent: {}\r\n".format('MonarchBrowser/1.0.0')
+
+        # Content-Length header is mandatory for POST.
+        if payload:
+            length = len(payload.encode("utf8"))
+            request += "Content-Length: {}\r\n".format(length)
+
         request += "\r\n"
+
+        if payload:
+            request += payload
 
         # Convert the text into bytes and send the request.
         s.send(request.encode("utf8"))

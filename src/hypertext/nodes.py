@@ -6,6 +6,7 @@ class HTMLNode:
     def __init__(self, parent: HTMLNode) -> None:
         self.parent = parent
         self.children: List[HTMLNode] = []
+        self.is_focused = False
 
 class Element(HTMLNode):
     def __init__(self, tag: str, attributes, parent: HTMLNode):

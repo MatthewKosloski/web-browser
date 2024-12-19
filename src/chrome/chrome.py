@@ -134,14 +134,25 @@ class Chrome:
                 if self.tab_rect(i).containsPoint(x, y):
                     self.browser.active_tab = tab
                     break
+    
+    def blur(self) -> None:
+        self.focus = None
 
-    def keypress(self, e: Event) -> None:
+    def keypress(self, e: Event) -> bool:
+        """
+            Handles keypress. Returns true if the key was
+            consumed by the chrome; false otherwise.
+        """
         if self.focus == "address bar":
             if e.keysym == "BackSpace":
                 # Remove last character.
                 self.address_bar = self.address_bar[0:-1]
+                return True
             else:
                 self.address_bar += e.char
+                return True
+        
+        return False
 
     def enter(self) -> None:
         if self.focus == "address bar":

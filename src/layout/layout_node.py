@@ -21,5 +21,9 @@ class LayoutNode(ABC):
         pass
 
     @abstractmethod
+    def should_paint() -> bool:
+        pass
+
+    @abstractmethod
     def paint() -> List[DrawCommand]:
         pass

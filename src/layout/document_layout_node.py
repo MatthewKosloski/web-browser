@@ -18,6 +18,9 @@ class DocumentLayoutNode(LayoutNode):
 
         self.height = child.height
 
+    def should_paint(self) -> bool:
+        return True
+
     def paint(self) -> list:
         return []
     

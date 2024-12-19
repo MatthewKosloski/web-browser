@@ -42,6 +42,9 @@ class LineLayoutNode(LayoutNode):
 
         self.height = self.LEADING * (max_ascent + max_descent)
 
+    def should_paint(self) -> bool:
+        return True
+        
     def paint(self) -> list:
         return []
     

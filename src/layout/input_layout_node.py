@@ -2,18 +2,19 @@ from tkinter import Label
 from tkinter.font import Font
 from typing import Tuple
 
-from hypertext.nodes import HTMLNode
+from constants import INPUT_WIDTH_PX
+from hypertext.nodes import HTMLNode, Text
 from layout.layout_node import LayoutNode
-from painting.commands import DrawText
+from painting.commands import DrawText, DrawRect, DrawLine
 from painting.shapes import Rect
 
-class TextLayoutNode(LayoutNode):
+class InputLayoutNode(LayoutNode):
 
     FONTS = {}
 
-    def __init__(self, node: HTMLNode, word: str, parent: LayoutNode, previous: LayoutNode) -> None:
+    def __init__(self, node: HTMLNode, parent: LayoutNode, previous: LayoutNode) -> None:
         super().__init__(node, parent, previous)
-        self.word = word
+        self.width = INPUT_WIDTH_PX
 
     def layout(self) -> None:
         weight = self.node.style["font-weight"]
@@ -30,8 +31,6 @@ class TextLayoutNode(LayoutNode):
 
         self.font = self.get_font(size, weight, style)
 
-        self.width = self.font.measure(self.word)
-
         # If there is a previous sibling, then layout starts right after
         # that sibling. Otherwise, layout starts at the parent's top edge.
         if self.previous:
@@ -46,8 +45,32 @@ class TextLayoutNode(LayoutNode):
         return True
 
     def paint(self) -> list:
+        commands = []
+        bgcolor = self.node.style.get("background-color", "transparent")
+
+        if bgcolor != "transparent":
+            x2, y2 = self.x + self.width, self.y + self.height
+            rect = DrawRect(Rect(self.x, self.y, x2, y2), bgcolor)
+            commands.append(rect)
+
+        if self.node.tag == "input":
+            text = self.node.attributes.get("value", "")
+        elif self.node.tag == "button":
+            if len(self.node.children) == 1 and \
+                isinstance(self.node.children[0], Text):
+                    text = self.node.children[0].text
+            else:
+                print("Ignoring HTML contents inside button")
+                text = ""
+
+        if self.node.is_focused:
+            cx = self.x + self.font.measure(text)
+            commands.append(DrawLine(Rect(cx, self.y, cx, self.y + self.height), "black", 1))
+
         color = self.node.style["color"]
-        return [DrawText(Rect(self.x, self.y), self.word, self.font, color)]
+        commands.append(DrawText(Rect(self.x, self.y), text, self.font, color))
+
+        return commands
 
     def get_font(self, size: int, weight: str, style: str) -> Tuple[Font, Label]:
         key = (size, weight, style)
@@ -60,4 +83,4 @@ class TextLayoutNode(LayoutNode):
         return self.FONTS[key][0]
     
     def __repr__(self) -> str:
-        return "TextLayoutNode('" + self.word + "', " + (''.join([f"{k}:{v}, " for k, v in self.node.style.items()])[:-2]) + ")"
+        return "InputLayoutNode"
