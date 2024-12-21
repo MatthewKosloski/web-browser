@@ -123,7 +123,7 @@ class Chrome:
 
     def click(self, x: int, y: int) -> None:
         if self.newtab_rect.containsPoint(x, y):
-            self.browser.new_tab(Url("https://browser.engineering/"))
+            self.browser.new_tab(Url("http://localhost:8000/"))
         elif self.back_rect.containsPoint(x, y):
             self.browser.active_tab.go_back()
         elif self.address_rect.containsPoint(x, y):

@@ -35,7 +35,7 @@ class Tab:
         self.url = url
 
         # Initialize the JavaScript execution environment.
-        self.js = JSContext()
+        self.js = JSContext(self)
 
         # Get HTML document, either from disk or the internet.
         body = url.request(payload)
@@ -43,18 +43,20 @@ class Tab:
         # Parse the HTML document, returning a tree of nodes.
         self.nodes = HTMLParser(body).parse()
         
-        print("HTML tree:")
-        log_html_tree(self.nodes)
+        # print("HTML tree:")
+        # log_html_tree(self.nodes)
 
         # Download stylesheets and initialize style computer.
         self.style_computer = StyleComputer(self.nodes, self.url)
 
+        # Get all scripts.
         scripts = [node.attributes["src"] for node
             in tree_to_list(self.nodes, [])
             if isinstance(node, Element)
             and node.tag == "script"
             and "src" in node.attributes]
         
+        # Download all scripts.
         for script in scripts:
             script_url = url.resolve(script)
             try:
@@ -81,8 +83,8 @@ class Tab:
         self.document = DocumentLayoutNode(self.nodes)
         self.document.layout()
 
-        print("Layout tree:")
-        log_layout_tree(self.document)
+        # print("Layout tree:")
+        # log_layout_tree(self.document)
 
         # Create a scrollbar.
         self.scrollbar = Scrollbar(self)
@@ -90,9 +92,9 @@ class Tab:
         # From the layout tree, produce a linear list of draw commands.
         self.paint(self.document, self.display_list)
 
-        print("Draw commands:")
-        for command in self.display_list:
-            print(command)
+        # print("Draw commands:")
+        # for command in self.display_list:
+        #     print(command)
 
     def draw(self, e: Optional[Event] = None) -> None:
         # Draw the scrollbar.
@@ -140,11 +142,17 @@ class Tab:
             if isinstance(elt, Text):
                 pass
             elif elt.tag == "a" and "href" in elt.attributes:
+                # Don't do default behavior.
+                if self.js.dispatch_event("click", elt): return
+
                 # A link element was clicked, so extract the URL and load it.
                 url = self.url.resolve(elt.attributes["href"])
                 self.load(url)
                 self.draw()
             elif elt.tag == "input":
+                # Don't do default behavior.
+                if self.js.dispatch_event("click", elt): return
+                
                 elt.attributes["value"] = ""
                 if self.focus:
                     self.focus.is_focused = False
@@ -152,6 +160,9 @@ class Tab:
                 elt.is_focused = True
                 self.render()
             elif elt.tag == "button":
+                # Don't do default behavior.
+                if self.js.dispatch_event("click", elt): return
+
                 # Find the nearest parent form and submit it.
                 while elt:
                     if elt.tag == "form" and "action" in elt.attributes:
@@ -160,6 +171,7 @@ class Tab:
             elt = elt.parent
 
     def submit_form(self, elt: HTMLNode) -> None:
+        self.js.dispatch_event("submit", elt)
         # Get all inputs of the form.
         inputs = [node for node in tree_to_list(elt, [])
             if isinstance(node, Element)
@@ -191,5 +203,8 @@ class Tab:
 
     def keypress(self, char: str) -> None:
         if self.focus:
+            # Don't do default behavior.
+            if self.js.dispatch_event("keydown", self.focus): return
+            
             self.focus.attributes["value"] += char
             self.render()

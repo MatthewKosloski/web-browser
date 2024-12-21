@@ -10,6 +10,12 @@ def do_request(method: str, url: str, headers: Dict[str, str], body: str) -> Non
     elif method == "POST" and url == "/add":
         params = form_decode(body)
         return "200 OK", add_entry(params)
+    elif method == "GET" and url == "/comment.js":
+        with open("comment.js") as f:
+            return "200 OK", f.read()
+    elif method == "GET" and url == "/comment.css":
+        with open("comment.css") as f:
+            return "200 OK", f.read()
     else:
         return "404 Not Found", not_found(url, method)
     
@@ -35,6 +41,7 @@ def not_found(url: str, method: str) -> str:
 
 def show_comments() -> str:
     out = "<!doctype html>"
+    out += "<link rel=stylesheet href=comment.css>"
 
     for entry in ENTRIES:
         out += "<p>" + entry + "</p>"
@@ -43,6 +50,10 @@ def show_comments() -> str:
     out +=   "<p><input name=guest></p>"
     out +=   "<p><button>Sign the book!</button></p>"
     out += "</form>"
+
+    out += "<strong></strong>"
+
+    out += "<script src=/comment.js></script>"
     
     return out
 
